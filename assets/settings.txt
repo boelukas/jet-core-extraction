@@ -1,0 +1,2 @@
+SourceDirectory=/home/jet/Data/
+DestDirectory=/home/jet/PreprocessedData/
