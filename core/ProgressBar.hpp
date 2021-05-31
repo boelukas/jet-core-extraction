@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <chrono> 
+#include <chrono>
 
 #include "Math.hpp"
 

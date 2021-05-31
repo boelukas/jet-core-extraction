@@ -1,4 +1,4 @@
-﻿#include <vtk_netcdf.h>
+﻿#include <netcdf.h>
 
 #include "RegularGrid.hpp"
 

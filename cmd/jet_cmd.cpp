@@ -6,7 +6,6 @@
 #include "core/TimeHelper.hpp"
 #include "core/JetStream.hpp"
 #include "core/ProgressBar.hpp"
-#include "core/Preprocessor_Amira.hpp"
 
 std::string convertPath(std::string p) {
 	char last = p[p.length() - 1];
@@ -105,10 +104,6 @@ int main(int argc, char* argv[])
 					std::cout << "Not enough arguments." << std::endl;
 				}
 			}
-			else if (arg == "-preprocess") {
-
-				flagPreprocess = true;
-			}
 			else if (arg == "-export_txt") {
 				export_txt = true;
 			}
@@ -160,44 +155,36 @@ int main(int argc, char* argv[])
 		std::filesystem::create_directory(dstPath);
 	}
 
-	if (!flagPreprocess) {
+  std::vector<std::string> time_steps = DataHelper::collectTimes();
+  ProgressBar pb(time_steps.size());
+  for (const auto& elem : time_steps) {
+    std::string jet_name = "";
+    if (export_txt) {
+      jet_name = dstPath + elem + "_jet.txt";
+    }
+    else {
+      jet_name = dstPath + elem + "_jet";
+    }
 
-		std::vector<std::string> time_steps = DataHelper::collectTimes();
-		ProgressBar pb(time_steps.size());
-		for (const auto& elem : time_steps) {
-			std::string jet_name = "";
-			if (export_txt) {
-				jet_name = dstPath + elem + "_jet.txt";
-			}
-			else {
-				jet_name = dstPath + elem + "_jet";
-			}
+    if (!recompute && std::filesystem::exists(jet_name)) { pb.print(); continue; }
+    size_t hours = TimeHelper::convertDateToHours(elem, DataHelper::getDataStartDate());
+    JetStream jetStream(hours, jetParams, false);
 
-			if (!recompute && std::filesystem::exists(jet_name)) { pb.print(); continue; }
-			size_t hours = TimeHelper::convertDateToHours(elem, DataHelper::getDataStartDate());
-			JetStream jetStream(hours, jetParams, false);
-
-			if (hours != 0) {
-				jetStream.setUsePreviousTimeStep();
-				jetStream.setUsePreprocessedPreviousJet();
-			}
-			LineCollection jet = jetStream.getJetCoreLines();
-			if (export_txt) {
-				jet.exportTxtFile(jet_name.c_str(), jetStream.getPsAxis());
-			}
-			else {
-				jet.Export(jet_name.c_str());
-			}
-			jet.clear();
-			pb.print();
-		}
-		pb.close();
-	}
-	else {
-
-		Preprocessor_Amira p = Preprocessor_Amira(jetParams, recompute, export_txt);
-		p.process();
-	}
+    if (hours != 0) {
+      jetStream.setUsePreviousTimeStep();
+      jetStream.setUsePreprocessedPreviousJet();
+    }
+    LineCollection jet = jetStream.getJetCoreLines();
+    if (export_txt) {
+      jet.exportTxtFile(jet_name.c_str(), jetStream.getPsAxis());
+    }
+    else {
+      jet.Export(jet_name.c_str());
+    }
+    jet.clear();
+    pb.print();
+  }
+  pb.close();
 
 	return 0;
 }

@@ -1,5 +1,4 @@
-﻿#pragma once
-#include "Gradient.hpp"
+﻿#include "Gradient.hpp"
 
 #include "WindFields.hpp"
 

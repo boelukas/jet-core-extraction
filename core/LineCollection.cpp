@@ -163,6 +163,7 @@ const std::vector<float>& LineCollection::getAttributeByName(const std::string& 
 			return attributes[i]->data;
 		}
 	}
+  return *(std::vector<float> *)nullptr;
 }
 /*
 	Exports the line collection to path. The memory layout is as described in the header.

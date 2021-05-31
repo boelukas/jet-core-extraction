@@ -1,5 +1,4 @@
-﻿#pragma once
-#include <mutex>
+﻿#include <mutex>
 #include <limits>
 
 #include "WindFields.hpp"

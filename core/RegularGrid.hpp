@@ -67,7 +67,7 @@ public:
 			TDomainCoord vfSampleInterpol = vfSample - static_cast<TDomainCoord>(viSampleBase0);
 
 			size_t numCorners = (size_t)std::pow(2, TDomainCoord::Dimensions);
-			TValue result({ 0 });
+			TValue result{ 0 };
 			for (size_t i = 0; i < numCorners; ++i) {
 				typename TDomainCoord::TScalar weight(1);
 				TGridCoord gridCoord;
