@@ -1,11 +1,11 @@
 ﻿#include <mutex>
 #include <limits>
 
-#include "WindFields.hpp"
-#include "DataHelper.hpp"
-#include "TimeHelper.hpp"
+#include "jet-core-extraction/WindFields.hpp"
+#include "jet-core-extraction/DataHelper.hpp"
+#include "jet-core-extraction/TimeHelper.hpp"
 
-#include "JetStream.hpp"
+#include "jet-core-extraction/JetStream.hpp"
 
 JetStream::JetStream(const size_t& time, const JetParameters& jetParams, const bool& PS3D_preprocessed)
 	:_time(time),

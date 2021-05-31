@@ -1,8 +1,8 @@
 ﻿#include <netcdf.h>
 
-#include "RegularGrid.hpp"
+#include "jet-core-extraction/RegularGrid.hpp"
 
-#include "NetCDF.hpp"
+#include "jet-core-extraction/NetCDF.hpp"
 
 const NetCDF::Info::Attribute& NetCDF::Info::Variable::GetAttributeByName(const std::string& name) const
 {

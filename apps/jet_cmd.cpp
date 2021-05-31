@@ -2,10 +2,10 @@
 #include <filesystem>
 #include <string>
 
-#include "core/DataHelper.hpp"
-#include "core/TimeHelper.hpp"
-#include "core/JetStream.hpp"
-#include "core/ProgressBar.hpp"
+#include "jet-core-extraction/DataHelper.hpp"
+#include "jet-core-extraction/TimeHelper.hpp"
+#include "jet-core-extraction/JetStream.hpp"
+#include "jet-core-extraction/ProgressBar.hpp"
 
 std::string convertPath(std::string p) {
 	char last = p[p.length() - 1];

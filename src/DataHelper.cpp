@@ -1,12 +1,12 @@
 ﻿#include <filesystem>
 #include <fstream>
 
-#include "Amira.hpp"
-#include "LineCollection.hpp"
-#include "TimeHelper.hpp"
-#include "NetCDF.hpp"
+#include "jet-core-extraction/Amira.hpp"
+#include "jet-core-extraction/LineCollection.hpp"
+#include "jet-core-extraction/TimeHelper.hpp"
+#include "jet-core-extraction/NetCDF.hpp"
 
-#include "DataHelper.hpp"
+#include "jet-core-extraction/DataHelper.hpp"
 
 RegScalarField3f* DataHelper::loadPreprocessedScalarField(const std::string& fieldName, const size_t& time) {
 	/*

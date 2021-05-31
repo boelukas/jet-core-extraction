@@ -1,6 +1,6 @@
 ﻿#include <fstream>
 
-#include "Amira.hpp"
+#include "jet-core-extraction/Amira.hpp"
 
 #pragma warning( push )
 #pragma warning( disable: 4996 )

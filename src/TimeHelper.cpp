@@ -1,9 +1,8 @@
 ﻿#include <time.h>
 
-#include "DataHelper.hpp"
+#include "jet-core-extraction/DataHelper.hpp"
 
-#include "TimeHelper.hpp"
-
+#include "jet-core-extraction/TimeHelper.hpp"
 
 struct tm TimeHelper::toTmStruct(std::string date) {
 	int startYear = std::stoi(date.substr(0, 4));
