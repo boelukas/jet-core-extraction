@@ -109,13 +109,6 @@ public:
 	// imports a steady 3d scalar field from an nc file. Providing the bounding box is optional. If it is not provided, this functions reads the dimensions to get the bounds itself.
 	static RegScalarField3f* ImportScalarField3f(const std::string& path, const std::string& varname, const std::string& dimXname, const std::string& dimYname, const std::string& dimZname);
 
-	// imports a steady 2d scalar field from an nc file
-	static RegScalarField2d* ImportScalarField2d(const std::string& path, const std::string& varname, const std::string& dimXname, const std::string& dimYname);
-	// imports QGOmega fields from a nc file.
-	static RegScalarField3f* ImportQGOmega(const std::string& path, const std::string& varname);
-	// imports a steady 3d scalar field from an nc file. Providing the bounding box is optional. If it is not provided, this functions reads the dimensions to get the bounds itself.
-	static RegScalarField3d* ImportScalarField3d(const std::string& path, const std::string& varname, const std::string& dimXname, const std::string& dimYname, const std::string& dimZname);
-
 	// imports a float value
 	static bool ImportFloat(const std::string& path, const std::string& varname, float& output);
 	// imports a float array

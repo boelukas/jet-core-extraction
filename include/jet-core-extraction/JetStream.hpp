@@ -4,7 +4,6 @@
 #include "EraGrid.hpp"
 #include "LineCollection.hpp"
 
-class DataLoader_Amira;
 class JetStream
 {
 public:

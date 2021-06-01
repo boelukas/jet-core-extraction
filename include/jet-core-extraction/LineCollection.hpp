@@ -24,21 +24,12 @@ public:
 	void setData(const std::vector<float>& lines);
 
 	//Getters
-	const std::vector<float>& getLinesAsVector() const;
 	const size_t& getNumberOfLines()const;
 	size_t getTotalNumberOfPoints() const;
-	size_t getIndexInAttributeArray(const size_t& line_nr, const size_t& point_nr) const;
-	Vec3d getPoint(const size_t& index) const;
-	Vec3d getPointOfLine(const size_t& line_nr, const size_t& point_nr) const;
 	size_t getNumberOfPointsOfLine(const size_t& line_nr) const;
-	std::vector<Vec3d> getAllPointsInVector() const;
-	std::vector<Point> getAllPointsWithAttributesInVector() const;
 	std::vector<std::vector<Vec3d>> getLinesInVectorOfVector() const;
-	size_t getLineIndex(const size_t& point_index) const;
-	Vec2i getLineVertexPosition(const size_t& index) const;
 
 	//Attribute functions
-	void addAttribute(const std::vector<float>& attribute, const std::string& attribute_name);
 	const std::vector<float>& getAttributeByName(const std::string& attribute_name) const;
 
 	//IO

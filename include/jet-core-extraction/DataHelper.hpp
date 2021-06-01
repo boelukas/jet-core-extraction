@@ -13,15 +13,9 @@ class DataHelper
 public:
 
 	//Data loading functions
-	static RegScalarField3f* loadPreprocessedScalarField(const std::string& fieldName, const size_t& time);
 	static RegScalarField3f* loadRegScalarField3f(const std::string& fieldName, const size_t& time);
-	static RegScalarField3f* loadQGOmega(const size_t& time);
-	static std::vector<RegScalarField3f*> loadScalarFields(const size_t& time, const std::vector<std::string>& fieldNames, const std::vector<bool>& preprocessed);
-	static std::vector<float> loadFloatArray(const std::string& name);
-	static void loadKernPaperJet(const size_t& time, LineCollection& jet_lines);
+	static std::vector<RegScalarField3f*> loadScalarFields(const size_t& time, const std::vector<std::string>& fieldNames);
 	static void loadLineCollection(const std::string& name, const size_t& time, const std::vector<std::string>& attributes, LineCollection& lines);
-	static RegScalarField3f* loadPS3D(const size_t& time);
-	static EraScalarField3f* loadEraScalarField3f(const std::string& fieldName, const size_t& time);
 	static RegScalarField3f* compute_PS3D(const std::string& time, const Vec3i& resolution, const BoundingBox3d& domain);
 
 	//Getters
@@ -29,6 +23,4 @@ public:
 	static std::string getPreprocPath();
 	static std::string getDataStartDate();
 	static std::vector<std::string> collectTimes();
-	static std::vector<std::string> collectWcbTimes();
-
 };

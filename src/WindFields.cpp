@@ -99,46 +99,6 @@ EraVectorField3f* WindFields::GetWindMagnitudeGradientEra(const size_t& time, Re
 	return era;
 }
 
-
-void WindFields::convertToLatPerS(RegScalarField3f* field, const size_t& time, const std::vector<float>& vecLat, const std::vector<float>& vecLon) {
-	size_t numEntries = (size_t)field->GetResolution()[0] * (size_t)field->GetResolution()[1] * (size_t)field->GetResolution()[2];
-#ifdef NDEBUG
-#pragma omp parallel for schedule(dynamic,16)
-#endif
-	for (long long linearIndex = 0; linearIndex < numEntries; linearIndex++) {
-		Vec3i coords = field->GetGridCoord(linearIndex);
-		float lon = vecLon[coords[0]];
-		float lat = vecLat[coords[1]];
-		Vec2d meters = GetWorldLengthOfDegreeInMeters(lon, lat);
-		float lat_in_m = meters[1];
-		float speed_in_m = field->GetVertexDataAt(coords);
-		float speed_in_lat = 1. / lat_in_m * speed_in_m;
-		field->SetVertexDataAt(coords, speed_in_lat);
-	}
-
-}
-
-
-void WindFields::convertToLongPerS(RegScalarField3f* field, const size_t& time, const std::vector<float>& vecLat, const std::vector<float>& vecLon) {
-	size_t numEntries = (size_t)field->GetResolution()[0] * (size_t)field->GetResolution()[1] * (size_t)field->GetResolution()[2];
-#ifdef NDEBUG
-#pragma omp parallel for schedule(dynamic,16)
-#endif
-	for (long long linearIndex = 0; linearIndex < numEntries; linearIndex++) {
-		Vec3i coords = field->GetGridCoord(linearIndex);
-		float lon = vecLon[coords[0]];
-		float lat = vecLat[coords[1]];
-		if (lat == -90 || lat == 90) { field->SetVertexDataAt(coords, 0); continue; }
-
-		Vec2d meters = GetWorldLengthOfDegreeInMeters(lon, lat);
-		float lon_in_m = meters[0];
-		float speed_in_m = field->GetVertexDataAt(coords);
-		float speed_in_lon = 1. / lon_in_m * speed_in_m;
-		field->SetVertexDataAt(coords, speed_in_lon);
-	}
-}
-
-
 Vec2d WindFields::GetWorldLengthOfDegreeInMeters(const double& lon, const double& lat)
 {
 	float pi = 3.1415926535897932384626433832795f;

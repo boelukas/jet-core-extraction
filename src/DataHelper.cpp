@@ -1,21 +1,11 @@
 ﻿#include <filesystem>
 #include <fstream>
 
-#include "jet-core-extraction/Amira.hpp"
 #include "jet-core-extraction/LineCollection.hpp"
 #include "jet-core-extraction/TimeHelper.hpp"
 #include "jet-core-extraction/NetCDF.hpp"
 
 #include "jet-core-extraction/DataHelper.hpp"
-
-RegScalarField3f* DataHelper::loadPreprocessedScalarField(const std::string& fieldName, const size_t& time) {
-	/*
-		Loads data from the preprocessing directory.
-	*/
-	std::string p = getPreprocPath() + TimeHelper::convertHoursToDate(time, getDataStartDate()) + std::string("_") + fieldName;
-	RegScalarField3f* field = Amira::ImportScalarField3f(p.c_str());
-	return field;
-}
 
 RegScalarField3f* DataHelper::loadRegScalarField3f(const std::string& fieldName, const size_t& time) {
 	/*
@@ -30,31 +20,6 @@ RegScalarField3f* DataHelper::loadRegScalarField3f(const std::string& fieldName,
 	}
 	RegScalarField3f* field = NetCDF::ImportScalarField3f(p, fieldName, "lon", "lat", "lev");
 	return field;
-}
-RegScalarField3f* DataHelper::loadQGOmega(const size_t& time) {
-	/*
-		Loads data from the QGOmega directory.
-	*/
-	std::string p = getSrcPath() + "B" + TimeHelper::convertHoursToDate(time, getDataStartDate());
-	RegScalarField3f* field = NetCDF::ImportQGOmega(p, "OM_TOP");
-	return field;
-}
-
-std::vector<float> DataHelper::loadFloatArray(const std::string& name) {
-	/*
-		Loads data from the preprocessing directory.
-	*/
-	std::string p = getPreprocPath() + name;
-	return Amira::ImportStdVectorf(p.c_str());
-}
-
-void DataHelper::loadKernPaperJet(const size_t& time, LineCollection& jet_lines) {
-	/*
-		Loads data from the preprocessing directory.
-	*/
-	std::string p = getPreprocPath() + TimeHelper::convertHoursToDate(time, getDataStartDate()) + "_jet";
-	//jet_lines.setData(Amira::ImportStdVectorf(p.c_str()));
-	Amira::ImportLineGeometry("C:\\Users\\Lukas\\Desktop\\jetcores-kern-pv.am", jet_lines);
 }
 void DataHelper::loadLineCollection(const std::string& name, const size_t& time, const std::vector<std::string>& attributes, LineCollection& lines) {
 	/*
@@ -88,21 +53,7 @@ void DataHelper::loadLineCollection(const std::string& name, const size_t& time,
 	}
 }
 
-RegScalarField3f* DataHelper::loadPS3D(const size_t& time) {
-	return loadPreprocessedScalarField("PS3D", time);
-}
-
-EraScalarField3f* DataHelper::loadEraScalarField3f(const std::string& fieldName, const size_t& time) {
-	/*
-		Loads data from the preprocessing directory.
-	*/
-	std::string p = getPreprocPath() + TimeHelper::convertHoursToDate(time, getDataStartDate()) + std::string("_") + fieldName;
-	RegScalarField3f* PS3D = loadPS3D(time);
-	RegScalarField3f* field = Amira::ImportScalarField3f(p.c_str());
-	return new EraScalarField3f(field, PS3D);
-}
-
-std::vector<RegScalarField3f*> DataHelper::loadScalarFields(const size_t& time, const std::vector<std::string>& fieldNames, const std::vector<bool>& preprocessed) {
+std::vector<RegScalarField3f*> DataHelper::loadScalarFields(const size_t& time, const std::vector<std::string>& fieldNames) {
 	/*
 		Loads a vector of scalar fields. In preprocessed it has to specified wether the field is in the folder preprocessed or not.
 	*/
@@ -111,12 +62,7 @@ std::vector<RegScalarField3f*> DataHelper::loadScalarFields(const size_t& time, 
 
 #pragma omp parallel for schedule(dynamic,16)
 	for (int i = 0; i < numberOfFields; i++) {
-		if (preprocessed[i] == false) {
 			fields[i] = loadRegScalarField3f(fieldNames[i], time);
-		}
-		else {
-			fields[i] = loadPreprocessedScalarField(fieldNames[i], time);
-		}
 	}
 	return fields;
 }
@@ -172,19 +118,6 @@ std::vector<std::string> DataHelper::collectTimes() {
 	}
 	std::sort(times.begin(), times.end());
 	return times;
-}
-
-std::vector<std::string> DataHelper::collectWcbTimes() {
-	std::vector<std::string> result;
-	for (const auto& entry : std::filesystem::directory_iterator(getSrcPath()))
-	{
-		std::string entryName = entry.path().filename().string();
-		if (entryName != "Preprocessing" && entryName.substr(0, 3) == "lcy") {
-			std::string time = entryName.substr(4, entryName.size() - 1);
-			result.push_back(time);
-		}
-	}
-	return result;
 }
 
 std::string DataHelper::getDataStartDate() {

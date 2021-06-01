@@ -26,22 +26,14 @@ JetStream::JetStream(const size_t& time, const JetParameters& jetParams, const b
 	_usePreprocessedPreviousJet(false)
 {
 	WindFields wf = WindFields();
-	if (PS3D_preprocessed) {
-		fields = DataHelper::loadScalarFields(time, std::vector<std::string>({ "PS3D", "U", "V", "OMEGA", "T" }), std::vector<bool>({ true, false, false, false, false }));
-		PS3D = fields[0];
-		windDirection_normalized = wf.GetNormalizedWindDirectionEra(time, PS3D, fields[1], fields[2], fields[3]);
-		windMagnitude = wf.GetWindMagnitudeEra(time, PSaxisValues, PS3D, fields[1], fields[2], fields[3], fields[4]);
-		windMagnitudeSmooth = wf.getSmoothWindMagnitude(time, PSaxisValues, PS3D, fields[1], fields[2], fields[3], fields[4]);
-		gradWindMagnitude = wf.GetWindMagnitudeGradientEra(time, PS3D, fields[4], windMagnitudeSmooth->GetField());
-	}
-	else {
-		fields = DataHelper::loadScalarFields(time, std::vector<std::string>({ "U", "V", "OMEGA", "T" }), std::vector<bool>({ false, false, false, false }));
-		PS3D = DataHelper::compute_PS3D(TimeHelper::convertHoursToDate(time, DataHelper::getDataStartDate()), fields[0]->GetResolution(), fields[0]->GetDomain());
-		windDirection_normalized = wf.GetNormalizedWindDirectionEra(time, PS3D, fields[0], fields[1], fields[2]);
-		windMagnitude = wf.GetWindMagnitudeEra(time, PSaxisValues, PS3D, fields[0], fields[1], fields[2], fields[3]);
-		windMagnitudeSmooth = wf.getSmoothWindMagnitude(time, PSaxisValues, PS3D, fields[0], fields[1], fields[2], fields[3]);
-		gradWindMagnitude = wf.GetWindMagnitudeGradientEra(time, PS3D, fields[3], windMagnitudeSmooth->GetField());
-	}
+
+  fields = DataHelper::loadScalarFields(time, std::vector<std::string>({ "U", "V", "OMEGA", "T" }));
+  PS3D = DataHelper::compute_PS3D(TimeHelper::convertHoursToDate(time, DataHelper::getDataStartDate()), fields[0]->GetResolution(), fields[0]->GetDomain());
+  windDirection_normalized = wf.GetNormalizedWindDirectionEra(time, PS3D, fields[0], fields[1], fields[2]);
+  windMagnitude = wf.GetWindMagnitudeEra(time, PSaxisValues, PS3D, fields[0], fields[1], fields[2], fields[3]);
+  windMagnitudeSmooth = wf.getSmoothWindMagnitude(time, PSaxisValues, PS3D, fields[0], fields[1], fields[2], fields[3]);
+  gradWindMagnitude = wf.GetWindMagnitudeGradientEra(time, PS3D, fields[3], windMagnitudeSmooth->GetField());
+
 	cmp.PSaxisValues = PSaxisValues;
 	cmp.windMagnitude = windMagnitude;
 }

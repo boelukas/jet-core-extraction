@@ -110,19 +110,20 @@ public:
 		}
 		return TDomainCoord::lerp(this->mDomain.GetMin(), this->mDomain.GetMax(), s);
 	}
-	//Gets the spatial location of a grid vertex, if for the last domain coord value Max and Min are flipped.
-	TDomainCoord GetCoordAt_InvertedZDomain(const TGridCoord& gridCoord) const
-	{
-		TDomainCoord s;
-		for (int i = 0; i < TDomainCoord::Dimensions; ++i) {
-			s[i] = mResolution[i] < 2 ? 0.5 : gridCoord[i] / (mResolution[i] - typename TDomainCoord::TScalar(1.));
-		}
-		TDomainCoord res = TDomainCoord::lerp(this->mDomain.GetMin(), this->mDomain.GetMax(), s);
-		res[TDomainCoord::Dimensions - 1] = TDomainCoord::lerp(this->mDomain.GetMax(), this->mDomain.GetMin(), s)[TDomainCoord::Dimensions - 1];
-		return res;
-	}
+  //Gets the spatial location of a grid vertex, if for the last domain coord value Max and Min are flipped.
+  TDomainCoord GetCoordAt_InvertedZDomain(const TGridCoord &gridCoord) const
+  {
+    TDomainCoord s;
+    for (int i = 0; i < TDomainCoord::Dimensions; ++i)
+    {
+      s[i] = mResolution[i] < 2 ? 0.5 : gridCoord[i] / (mResolution[i] - typename TDomainCoord::TScalar(1.));
+    }
+    TDomainCoord res = TDomainCoord::lerp(this->mDomain.GetMin(), this->mDomain.GetMax(), s);
+    res[TDomainCoord::Dimensions - 1] = TDomainCoord::lerp(this->mDomain.GetMax(), this->mDomain.GetMin(), s)[TDomainCoord::Dimensions - 1];
+    return res;
+  }
 
-	// Gets the grid coordinate based on the linear array index.
+  // Gets the grid coordinate based on the linear array index.
 	TGridCoord GetGridCoord(const size_t& linearIndex) const
 	{
 		TGridCoord result;
@@ -164,14 +165,6 @@ public:
 	const TGridCoord& GetResolution() const { return mResolution; }
 	// Gets the domain.
 	const TBoundingBox& GetDomain() const { return mDomain; }
-
-	// Gets the sampling method.
-	const ESampler& GetSamplingMethod() const { return mSampler; }
-	// Sets the sampling method.
-	void SetSamplingMethod(const ESampler& sampler) { mSampler = sampler; }
-	// Sets the domain.
-	void SetDomain(TBoundingBox box) { mDomain = box; }
-
 
 	std::vector<TValue>& GetData() { return mData; }
 	const std::vector<TValue>& GetData() const { return mData; }
