@@ -1,8 +1,8 @@
 ﻿#include <time.h>
 
-#include "jet-core-extraction/DataHelper.hpp"
+#include "DataHelper.hpp"
 
-#include "jet-core-extraction/TimeHelper.hpp"
+#include "TimeHelper.hpp"
 
 time_t TimeHelper::toTimeT(std::string date) {
 	int startYear = std::stoi(date.substr(0, 4));

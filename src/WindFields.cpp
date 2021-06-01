@@ -1,6 +1,6 @@
-﻿#include "jet-core-extraction/Gradient.hpp"
+﻿#include "Gradient.hpp"
 
-#include "jet-core-extraction/WindFields.hpp"
+#include "WindFields.hpp"
 
 WindFields::WindFields() {}
 

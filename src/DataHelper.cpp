@@ -1,11 +1,11 @@
 ﻿#include <filesystem>
 #include <fstream>
 
-#include "jet-core-extraction/LineCollection.hpp"
-#include "jet-core-extraction/TimeHelper.hpp"
-#include "jet-core-extraction/NetCDF.hpp"
+#include "LineCollection.hpp"
+#include "TimeHelper.hpp"
+#include "NetCDF.hpp"
 
-#include "jet-core-extraction/DataHelper.hpp"
+#include "DataHelper.hpp"
 
 RegScalarField3f* DataHelper::loadRegScalarField3f(const std::string& fieldName, const size_t& time) {
 	/*

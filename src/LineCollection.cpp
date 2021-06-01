@@ -1,7 +1,7 @@
 ﻿#include <fstream>
 #include <string>
 
-#include "jet-core-extraction/LineCollection.hpp"
+#include "LineCollection.hpp"
 
 LineCollection::LineCollection() :n_lines(0) {}
 /*
