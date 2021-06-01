@@ -40,5 +40,4 @@ ELSE()
   MESSAGE(STATUS "Not using OpenMP parallelization")
 ENDIF()
 
-ADD_SUBDIRECTORY(extern/nanoflann)
 ADD_SUBDIRECTORY(src)
