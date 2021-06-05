@@ -28,16 +28,18 @@ public:
 	size_t getTotalNumberOfPoints() const;
 	size_t getNumberOfPointsOfLine(const size_t& line_nr) const;
 	std::vector<std::vector<Vec3d>> getLinesInVectorOfVector() const;
+  std::vector<Vec3d> getAllPointsInVector() const;
 
-	//Attribute functions
-	const std::vector<float>& getAttributeByName(const std::string& attribute_name) const;
+  //Attribute functions
+  const std::vector<float> &getAttributeByName(const std::string &attribute_name) const;
 
-	//IO
+  //IO
 	void Export(const char* path);
 	void exportTxtFile(const char* path, const std::vector<float>& PSaxisValues);
-	void Import(const char* path, const std::vector<std::string>& attributeNames = std::vector<std::string>(0));
+  void exportVtp(const char *path, const std::vector<float> &PSaxisValues);
+  void Import(const char *path, const std::vector<std::string> &attributeNames = std::vector<std::string>(0));
 
-	//Memory management
+  //Memory management
 	void clear();
 
 

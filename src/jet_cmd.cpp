@@ -163,7 +163,7 @@ int main(int argc, char* argv[])
       jet_name = dstPath + elem + "_jet.txt";
     }
     else {
-      jet_name = dstPath + elem + "_jet";
+      jet_name = dstPath + elem + "_jet.vtp";
     }
 
     if (!recompute && std::filesystem::exists(jet_name)) { pb.print(); continue; }
@@ -179,7 +179,7 @@ int main(int argc, char* argv[])
       jet.exportTxtFile(jet_name.c_str(), jetStream.getPsAxis());
     }
     else {
-      jet.Export(jet_name.c_str());
+      jet.exportVtp(jet_name.c_str(), jetStream.getPsAxis());
     }
     jet.clear();
     pb.print();

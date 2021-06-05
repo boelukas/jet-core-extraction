@@ -69,6 +69,20 @@ void LineCollection::clear() {
 size_t LineCollection::getNumberOfPointsOfLine(const size_t& line_nr) const {
 	return (size_t)std::round(Lines[line_nr + 1]);
 }
+std::vector<Vec3d> LineCollection::getAllPointsInVector() const
+{
+  size_t total_pts = getTotalNumberOfPoints();
+  std::vector<Vec3d> points_all_lines(total_pts);
+  size_t data_ptr = 1 + n_lines;
+  for (size_t i = 0; i < total_pts; i++)
+  {
+    double x = Lines[data_ptr++];
+    double y = Lines[data_ptr++];
+    double z = Lines[data_ptr++];
+    points_all_lines[i] = Vec3d({x, y, z});
+  }
+  return points_all_lines;
+}
 const std::vector<float>& LineCollection::getAttributeByName(const std::string& attribute_name) const {
 	for (size_t i = 0; i < attributes.size(); i++) {
 		if (attributes[i]->name == attribute_name) {
@@ -132,6 +146,70 @@ void LineCollection::exportTxtFile(const char* path, const std::vector<float>& P
 		}
 	}
 	myfile.close();
+}
+
+void LineCollection::exportVtp(const char *path, const std::vector<float> &PSaxisValues)
+{
+  std::vector<std::vector<Vec3d>> vec_lines = getLinesInVectorOfVector();
+  std::vector<Vec3d> vec_points = getAllPointsInVector();
+  std::string offsets = "";
+  size_t offset_sum = 0;
+  for(size_t i = 0; i < vec_lines.size(); i++){
+    offset_sum += vec_lines[i].size();
+    offsets += std::to_string(offset_sum);
+    if(i != vec_lines.size() - 1){
+      offsets += " ";
+    }else{
+      offsets += "\n";
+    }
+  }
+  std::string connectivity = "";
+  std::string points = "";
+  for (size_t i = 0; i < vec_points.size(); i++)
+  {
+    points += std::to_string(vec_points[i][0]);
+    points += " ";
+    points += std::to_string(vec_points[i][1]);
+    points += " ";
+    // Convert to 10hPa scale
+    points += std::to_string(CoordinateConverter::valueOfIndexInArray(PSaxisValues, vec_points[i][2], true) * 0.1);
+    connectivity += std::to_string(i);
+    if (i != vec_points.size() - 1)
+    {
+      points += " ";
+      connectivity += " ";
+    }
+    else
+    {
+      points += "\n";
+      connectivity += "\n";
+    }
+  }
+
+
+  std::ofstream myfile;
+  myfile.open(path, std::ios::out);
+  myfile << "<VTKFile type=\"PolyData\" version=\"1.0\" byte_order=\"LittleEndian\" header_type=\"UInt64\">\n";
+  myfile << "  <PolyData>\n";
+  myfile << "    <Piece NumberOfPoints=\"" << getTotalNumberOfPoints() << "\" NumberOfLines=\"" << getNumberOfLines() << "\">\n";
+  myfile << "      <Points>\n";
+  myfile << "        <DataArray type=\"Float64\" Name=\"Points\" NumberOfComponents=\"3\" format=\"ascii\">\n";
+  myfile << "          " << points;
+  myfile << "        </DataArray>\n";
+  myfile << "      </Points>\n";
+  myfile << "      <Lines>\n";
+  myfile << "        <DataArray type=\"Int64\" Name=\"connectivity\" format=\"ascii\">\n";
+  myfile << "          " << connectivity;
+  myfile << "        </DataArray>\n";
+  myfile << "        <DataArray type=\"Int64\" Name=\"offsets\" format=\"ascii\">\n";
+  myfile << "          " << offsets;
+  myfile << "        </DataArray>\n";
+  myfile << "      </Lines>\n";
+  myfile << "    </Piece>\n";
+  myfile << "  </PolyData>\n";
+  myfile << "</VTKFile>\n";
+
+  myfile.close();
 }
 
 /*
