@@ -132,14 +132,17 @@ int main(int argc, char* argv[])
 			}
 		}
 	}
-	else if (argc < 3) {
-		std::cout << "Not enough arguments. Source and destination directory required." << std::endl;
-		return 0;
-	}
 	if (!(srcFound && dstFound)) {
-		std::cout << "Source and destination directory are required." << std::endl;
-		return 0;
-	}
+		std::cout << "Source or destination directory not found. Using demo data." << std::endl;
+#ifdef _WIN32
+    srcPath = "..\\demo_data\\";
+    dstPath = "..\\demo_data\\";
+#endif
+#ifdef linux
+    srcPath = "../demo_data/";
+    dstPath = "../demo_data/";
+#endif
+  }
 
 	srcPath = convertPath(srcPath);
 	dstPath = convertPath(dstPath);
