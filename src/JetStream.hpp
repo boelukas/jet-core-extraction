@@ -43,6 +43,7 @@ public:
 
 	JetStream(const size_t& time, const JetParameters& jetParams, const bool& PS3D_preprocessed);
 	~JetStream();
+  void deletePreviousJet();
 
 	/*
 		Iterates through the wind Magnitude scalar field to find local maximas.
@@ -55,6 +56,7 @@ public:
 	/*
 		Getters
 	*/
+  const size_t getTime() const {return _time;}
 	const double& getMaxAttributeValue() const { return maxAttributeVal; }
 	const double& getMinAttributeValue() const { return minAttributeVal; }
 	Line3d getSeeds() { return _seeds; };
@@ -74,12 +76,12 @@ public:
 	/*
 		Setters
 	*/
-	void setUsePreviousTimeStep() { _usePreviousTimeStep = true; };
-	void setUsePreprocessedPreviousJet() { _usePreprocessedPreviousJet = true; };
+  void setPreviousJet(JetStream *previous_jet){_previous_jet = previous_jet; }
 
 private:
 	const bool _PS3D_preprocessed;
 	LineCollection jet_core_lines;
+  JetStream* _previous_jet;
 
 	std::vector<RegScalarField3f*> fields;
 	EraVectorField3f* windDirection_normalized;

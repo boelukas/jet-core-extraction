@@ -22,8 +22,7 @@ JetStream::JetStream(const size_t& time, const JetParameters& jetParams, const b
 	windMagnitudeSmooth(nullptr),
 	PS3D(nullptr),
 	mtx(std::mutex()),
-	_usePreviousTimeStep(false),
-	_usePreprocessedPreviousJet(false)
+	_previous_jet(nullptr)
 {
 	WindFields wf = WindFields();
 
@@ -56,6 +55,15 @@ JetStream::~JetStream() {
 		delete PS3D;
 	}
 }
+void JetStream::deletePreviousJet()
+{
+  if (_previous_jet != nullptr)
+  {
+    delete _previous_jet;
+    _previous_jet = nullptr;
+  }
+}
+
 LineCollection JetStream::getJetCoreLines() {
 	if (jet_core_lines.getNumberOfLines() == 0) {
 		computeJetLines();
@@ -82,12 +90,12 @@ void JetStream::generateJetSeeds() {
 	PointCloud3d prev_jet_cloud{ Line3d() };
 	KdTree3d* prev_jet_tree = new KdTree3d(3, prev_jet_cloud, nanoflann::KDTreeSingleIndexAdaptorParams(10 /* max leaf */));
 
-	if (_usePreviousTimeStep) {
+	if (_previous_jet != nullptr) {
 		Line3d prev_jet = getPreviousTimeStepSeeds();
 		prev_jet_cloud.pts = prev_jet;
 		prev_jet_tree->buildIndex();
-		_seeds.insert(_seeds.end(), prev_jet.begin(), prev_jet.end());
-	}
+    _seeds.insert(_seeds.end(), prev_jet.begin(), prev_jet.end());
+  }
 	double ps_min_idx = CoordinateConverter::indexOfValueInArray(PSaxisValues, _jetParams.ps_min_val, true);
 	double ps_max_idx = CoordinateConverter::indexOfValueInArray(PSaxisValues, _jetParams.ps_max_val, true);
 	size_t numEntries = (size_t)windMagnitudeSmooth->GetField()->GetResolution()[0] * (size_t)windMagnitudeSmooth->GetField()->GetResolution()[1] * (size_t)windMagnitudeSmooth->GetField()->GetResolution()[2];
@@ -116,7 +124,7 @@ void JetStream::generateJetSeeds() {
 			float w_back = windMagnitudeSmooth->Sample(back);
 
 			if (wind_mag >= _jetParams.wind_speed_threshold && wind_mag > std::max({ w_up, w_down,w_left, w_right, w_front, w_back })) {
-				if (_usePreviousTimeStep) {
+				if (_previous_jet != nullptr) {
 					Line3d closeby_prev_jet_seeds = findPointsWithinRadius(prev_jet_tree, prev_jet_cloud, _jetParams.kdtree_radius, coords);
 					if (closeby_prev_jet_seeds.size() == 0) {
 						mtx.lock();
@@ -135,22 +143,15 @@ void JetStream::generateJetSeeds() {
 	}
 	delete prev_jet_tree;
 }
-Line3d JetStream::getPreviousTimeStepSeeds() {
-	if (_time != 0) {
-		LineCollection jet;
-		if (_usePreprocessedPreviousJet) {
-			std::vector<std::string> attributes;
-			DataHelper::loadLineCollection("Jet", (_time - 1), attributes, jet);
-		}
-		else {
-			JetStream js2 = JetStream((_time - 1), _jetParams, false);
-			jet = js2.getJetCoreLines();
-		}
+Points3d JetStream::getPreviousTimeStepSeeds()
+{
+  if (_time != 0) {
+    LineCollection jet = _previous_jet->getJetCoreLines();
 
 		std::vector<Line3d> prev_jet = jet.getLinesInVectorOfVector();
 
-		Line3d res = Line3d();
-		for (auto line : prev_jet) {
+    Points3d res = Points3d();
+    for (auto line : prev_jet) {
 			if (line.size() < 3) { continue; }
 			for (int i = 1; i < line.size() - 1; i++) {
 				double left = windMagnitude->Sample(toDomainCoordinates(line[i - 1]));
@@ -164,8 +165,8 @@ Line3d JetStream::getPreviousTimeStepSeeds() {
 		return res;
 	}
 	else {
-		return Line3d();
-	}
+    return Points3d();
+  }
 }
 
 /*
