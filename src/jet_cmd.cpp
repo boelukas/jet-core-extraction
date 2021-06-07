@@ -2,25 +2,25 @@
 #include <filesystem>
 #include <string>
 
-#include "DataHelper.hpp"
-#include "TimeHelper.hpp"
-#include "JetStream.hpp"
-#include "ProgressBar.hpp"
+#include "data_helper.hpp"
+#include "time_helper.hpp"
+#include "jet_stream.hpp"
+#include "progress_bar.hpp"
 
-std::string convertPath(std::string p) {
-	char last = p[p.length() - 1];
-	char secondLast = p[p.length() - 2];
+std::string ConvertPath(std::string path) {
+	char last_character = path[path.length() - 1];
+	char second_last_character = path[path.length() - 2];
 #ifdef _WIN32
-	if (last != '\\') {
-		p += "\\";
+	if (last_character != '\\') {
+		path += "\\";
 	}
 #endif
 #ifdef linux
-	if (last != '/') {
-		p += "/";
+	if (last_character != '/') {
+		path += "/";
 	}
 #endif
-	return p;
+	return path;
 }
 
 
@@ -29,22 +29,22 @@ std::string convertPath(std::string p) {
 // ---------------------------------------
 int main(int argc, char* argv[])
 {
-	std::string srcPath;
-	std::string dstPath;
-	bool flagPreprocess = false;
-	bool srcFound = false;
-	bool dstFound = false;
+	std::string src_path;
+	std::string dst_path;
+	bool flag_preprocess = false;
+	bool src_found = false;
+	bool dst_found = false;
 	bool recompute = false;
 	bool export_txt = false;
   bool export_binary = false;
-	JetStream::JetParameters jetParams;
+	JetStream::JetParameters jet_params;
 
   for (int i = 1; i < argc; i++) {
     std::string arg = std::string(argv[i]);
     if (arg == "-pMin") {
       i++;
       if (i < argc) {
-        jetParams.ps_min_val = atof(argv[i]);
+        jet_params.ps_min_val = atof(argv[i]);
       }
       else {
         std::cout << "Not enough arguments." << std::endl;
@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
     else if (arg == "-pMax") {
       i++;
       if (i < argc) {
-        jetParams.ps_max_val = atof(argv[i]);
+        jet_params.ps_max_val = atof(argv[i]);
       }
       else {
         std::cout << "Not enough arguments." << std::endl;
@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
     else if (arg == "-windspeedThreshold") {
       i++;
       if (i < argc) {
-        jetParams.wind_speed_threshold = atof(argv[i]);
+        jet_params.wind_speed_threshold = atof(argv[i]);
       }
       else {
         std::cout << "Not enough arguments." << std::endl;
@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
     else if (arg == "-nStepsBelowThreshold") {
       i++;
       if (i < argc) {
-        jetParams.max_steps_below_speed_thresh = atof(argv[i]);
+        jet_params.max_steps_below_speed_thresh = atof(argv[i]);
       }
       else {
         std::cout << "Not enough arguments." << std::endl;
@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
     else if (arg == "-nPredictorSteps") {
       i++;
       if (i < argc) {
-        jetParams.n_predictor_steps = atof(argv[i]);
+        jet_params.n_predictor_steps = atof(argv[i]);
       }
       else {
         std::cout << "Not enough arguments." << std::endl;
@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
     else if (arg == "-nCorrectorSteps") {
       i++;
       if (i < argc) {
-        jetParams.n_corrector_steps = atof(argv[i]);
+        jet_params.n_corrector_steps = atof(argv[i]);
       }
       else {
         std::cout << "Not enough arguments." << std::endl;
@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
     else if (arg == "-integrationStepsize") {
       i++;
       if (i < argc) {
-        jetParams.integration_stepsize = atof(argv[i]);
+        jet_params.integration_stepsize = atof(argv[i]);
       }
       else {
         std::cout << "Not enough arguments." << std::endl;
@@ -120,13 +120,13 @@ int main(int argc, char* argv[])
         return 0;
       }
       else {
-        if (!srcFound) {
-          srcPath = arg;
-          srcFound = true;
+        if (!src_found) {
+          src_path = arg;
+          src_found = true;
         }
-        else if (!dstFound) {
-          dstPath = arg;
-          dstFound = true;
+        else if (!dst_found) {
+          dst_path = arg;
+          dst_found = true;
         }
         else {
           std::cout << "Unknown argument." << std::endl;
@@ -135,54 +135,54 @@ int main(int argc, char* argv[])
       }
     }
   }
-	if (!(srcFound && dstFound)) {
+	if (!(src_found && dst_found)) {
 		std::cout << "Source or destination directory not found. Using demo data." << std::endl;
 #ifdef _WIN32
-    srcPath = "..\\demo_data\\";
-    dstPath = "..\\demo_data\\";
+    src_path = "..\\demo_data\\";
+    dst_path = "..\\demo_data\\";
 #endif
 #ifdef linux
-    srcPath = "../demo_data/";
-    dstPath = "../demo_data/";
+    src_path = "../demo_data/";
+    dst_path = "../demo_data/";
 #endif
   }
 
-	srcPath = convertPath(srcPath);
-	dstPath = convertPath(dstPath);
+	src_path = ConvertPath(src_path);
+	dst_path = ConvertPath(dst_path);
 
-	if (!std::filesystem::exists(dstPath)) {
-		std::filesystem::create_directory(dstPath);
+	if (!std::filesystem::exists(dst_path)) {
+		std::filesystem::create_directory(dst_path);
 	}
 
-  std::vector<std::string> time_steps = DataHelper::collectTimes();
-  std::string data_start_date = DataHelper::getDataStartDate();
+  std::vector<std::string> time_steps = DataHelper::CollectTimes();
+  std::string data_start_date = DataHelper::GetDataStartDate();
   ProgressBar pb(time_steps.size());
-  JetStream* jetStreamPrevious = nullptr;
+  JetStream* previous_jet = nullptr;
   for (const auto& time_step : time_steps) {
     std::string jet_name;
     if (export_txt)
     {
-      jet_name = dstPath + time_step + "_jet.txt";
+      jet_name = dst_path + time_step + "_jet.txt";
     }
     else if (export_binary)
     {
-      jet_name = dstPath + time_step + "_jet";
+      jet_name = dst_path + time_step + "_jet";
     }else{
-      jet_name = dstPath + time_step + "_jet.vtp";
+      jet_name = dst_path + time_step + "_jet.vtp";
     }
 
-    if (!recompute && std::filesystem::exists(jet_name)) { pb.print(); continue; }
-    size_t hours = TimeHelper::convertDateToHours(time_step, data_start_date);
-    JetStream* jetStream = new JetStream(hours, jetParams, false);
+    if (!recompute && std::filesystem::exists(jet_name)) { pb.Print(); continue; }
+    size_t hours = TimeHelper::ConvertDateToHours(time_step, data_start_date);
+    JetStream* jet_stream = new JetStream(hours, jet_params, false);
 
-    if (jetStreamPrevious != nullptr && jetStreamPrevious->getTime() == hours - 1)
+    if (previous_jet != nullptr && previous_jet->GetTime() == hours - 1)
     {
-      jetStream->setPreviousJet(jetStreamPrevious);
+      jet_stream->SetPreviousJet(previous_jet);
     }
-    LineCollection jet = jetStream->getJetCoreLines();
+    LineCollection jet = jet_stream->GetJetCoreLines();
     if (export_txt)
     {
-      jet.exportTxtFile(jet_name.c_str(), jetStream->getPsAxis());
+      jet.ExportTxtFile(jet_name.c_str(), jet_stream->GetPsAxis());
     }
     else if (export_binary)
     {
@@ -190,19 +190,19 @@ int main(int argc, char* argv[])
     }
     else
     {
-      jet.exportVtp(jet_name.c_str(), jetStream->getPsAxis());
+      jet.ExportVtp(jet_name.c_str(), jet_stream->GetPsAxis());
     }
-    jet.clear();
+    jet.Clear();
 
-    jetStream->deletePreviousJet();
-    jetStreamPrevious = jetStream;
+    jet_stream->DeletePreviousJet();
+    previous_jet = jet_stream;
 
-    pb.print();
+    pb.Print();
   }
-  delete jetStreamPrevious;
-  jetStreamPrevious = nullptr;
+  delete previous_jet;
+  previous_jet = nullptr;
 
-  pb.close();
+  pb.Close();
 
   return 0;
 }

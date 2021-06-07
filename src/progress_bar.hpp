@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <chrono>
 
-#include "Math.hpp"
+#include "math.hpp"
 
 class ProgressBar
 {
@@ -9,40 +9,40 @@ class ProgressBar
 		Class to pretty print a progress bar.
 	*/
 private:
-	size_t size;
-	double progress;
-	std::chrono::time_point< std::chrono::high_resolution_clock > start;
-	bool startup;
+	size_t size_;
+	double progress_;
+	std::chrono::time_point< std::chrono::high_resolution_clock > start_;
+	bool startup_;
 public:
 	/*
 		The first time step is started when the progress bar is initialized.
 	*/
-	ProgressBar(const size_t& _size) :size(_size), progress(0.0) {
-		startup = true;
-		start = std::chrono::high_resolution_clock::now();
-		progress = -1;
-		print();
+	ProgressBar(const size_t& _size) :size_(_size), progress_(0.0) {
+		startup_ = true;
+		start_ = std::chrono::high_resolution_clock::now();
+		progress_ = -1;
+		Print();
 
 	}
 	/*
-		Call print to print the progress.
+		Call Print to Print the progress.
 	*/
-	void print() {
-		progress++;
+	void Print() {
+		progress_++;
 		//Progress Bar
 		std::cout << "[";
-		int pos = 50 * progress / size;
+		int pos = 50 * progress_ / size_;
 		for (int i = 0; i < 50; ++i) {
 			if (i <= pos) std::cout << "#";
 			else std::cout << " ";
 		}
-		int pr = progress / size * 100.0;
+		int pr = progress_ / size_ * 100.0;
 		//std::cout << "] " << pr << " %\r";
 		//std::cout.flush();
 		//End Progress Bar
 		std::chrono::time_point< std::chrono::high_resolution_clock > stop = std::chrono::high_resolution_clock::now();
-		long long duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
-		double estim = (size - progress) * (double)(duration);
+		long long duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start_).count();
+		double estim = (size_ - progress_) * (double)(duration);
 		double estim_s = estim / 1000;
 		double estim_m = estim_s / 60;
 		double estim_h = estim_m / 60;
@@ -64,13 +64,13 @@ public:
 		}
 		std::cout.flush();
 
-		start = std::chrono::high_resolution_clock::now();
+		start_ = std::chrono::high_resolution_clock::now();
 
 	}
 	/*
-		Always call close when the task is finished.
+		Always call Close when the task is finished.
 	*/
-	void close() const {
+	void Close() const {
 		std::cout << std::endl;
 	}
 };

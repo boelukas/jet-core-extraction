@@ -1,8 +1,8 @@
 ﻿#include <netcdf.h>
 
-#include "RegularGrid.hpp"
+#include "regular_grid.hpp"
 
-#include "NetCDF.hpp"
+#include "netcdf.hpp"
 
 const NetCDF::Info::Attribute& NetCDF::Info::Variable::GetAttributeByName(const std::string& name) const
 {

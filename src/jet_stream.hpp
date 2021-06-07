@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include <mutex>
 
-#include "EraGrid.hpp"
-#include "LineCollection.hpp"
+#include "era_grid.hpp"
+#include "line_collection.hpp"
 
 class JetStream
 {
@@ -29,38 +29,36 @@ public:
 	};
 
 	struct WindMagComparator {
-		EraScalarField3f* windMagnitude;
-		std::vector<float> PSaxisValues;
-		Vec3d toDomainCoordinates(Vec3d& p) const {
-			return Vec3d({ p[0], p[1], CoordinateConverter::valueOfIndexInArray(PSaxisValues, p[2], true) });
+		EraScalarField3f* wind_magnitude;
+		std::vector<float> ps_axis_values;
+		Vec3d ToDomainCoordinates(Vec3d& p) const {
+			return Vec3d({ p[0], p[1], CoordinateConverter::ValueOfIndexInArray(ps_axis_values, p[2], true) });
 		}
 		bool operator() (Vec3d a, Vec3d b) const {
-			return windMagnitude->Sample(toDomainCoordinates(a)) > windMagnitude->Sample(toDomainCoordinates(b));
+			return wind_magnitude->Sample(ToDomainCoordinates(a)) > wind_magnitude->Sample(ToDomainCoordinates(b));
 		};
 	};
 
 	enum class HEMISPHERE { BOTH, NORTH, SOUTH };
 
-	JetStream(const size_t& time, const JetParameters& jetParams, const bool& PS3D_preprocessed);
+	JetStream(const size_t& time, const JetParameters& jet_params, const bool& ps3d_preprocessed);
 	~JetStream();
-  void deletePreviousJet();
+  void DeletePreviousJet();
 
 	/*
 		Iterates through the wind Magnitude scalar field to find local maximas.
 		If the time step is not zero, the maximas of the core lines from the last time step will be taken as seeds.
 	*/
-	void generateJetSeeds();
+	void GenerateJetSeeds();
 
-	LineCollection getJetCoreLines();
 
 	/*
 		Getters
 	*/
-  const size_t getTime() const {return _time;}
-	const double& getMaxAttributeValue() const { return maxAttributeVal; }
-	const double& getMinAttributeValue() const { return minAttributeVal; }
-	Line3d getSeeds() { return _seeds; };
-	std::vector<float> getPsAxis() {
+	LineCollection GetJetCoreLines();
+
+  const size_t GetTime() const {return time_;}
+	std::vector<float> GetPsAxis() {
 		int stepSize = 10;
 		double PS_domain_min = 10.;
 		int pressureResolution = 104;
@@ -76,45 +74,42 @@ public:
 	/*
 		Setters
 	*/
-  void setPreviousJet(JetStream *previous_jet){_previous_jet = previous_jet; }
+  void SetPreviousJet(JetStream *previous_jet){previous_jet_ = previous_jet; }
 
 private:
-	const bool _PS3D_preprocessed;
-	LineCollection jet_core_lines;
-  JetStream* _previous_jet;
+	const bool ps3d_preprocessed_;
+	LineCollection jet_core_lines_;
+  JetStream* previous_jet_;
 
-	std::vector<RegScalarField3f*> fields;
-	EraVectorField3f* windDirection_normalized;
-	EraVectorField3f* gradWindMagnitude;
-	EraScalarField3f* windMagnitude;
-	EraScalarField3f* windMagnitudeSmooth;
-	RegScalarField3f* PS3D;
-	std::vector<float> PSaxisValues;
+	std::vector<RegScalarField3f*> fields_;
+	EraVectorField3f* wind_direction_normalized_;
+	EraVectorField3f* grad_wind_magnitude_;
+	EraScalarField3f* wind_magnitude_;
+	EraScalarField3f* wind_magnitude_smooth_;
+	RegScalarField3f* ps3d_;
+	std::vector<float> ps_axis_values_;
 	KdTree3d* jet_kd_tree;
 	PointCloud3d jet_point_cloud;
 	Line3d _seeds;
 
-	double minAttributeVal;
-	double maxAttributeVal;
-
 	bool _usePreviousTimeStep;
 	bool _usePreprocessedPreviousJet;
-	std::mutex mtx;
+	std::mutex mtx_;
 
 	struct LineDistance {
 		double distance;
 		Vec3d previous;
 	};
-	size_t _time;
-	const JetParameters _jetParams;
-	WindMagComparator cmp;
+	size_t time_;
+	const JetParameters jet_params_;
+	WindMagComparator wind_magnitude_comparator_;
 
 
-	void computeJetLines();
+	void ComputeJetCoreLines();
 	/*
 		Computes the previous time steps core lines and uses the local maximas from the core lines as seeds.
 	*/
-	Line3d getPreviousTimeStepSeeds();
+	Line3d GetPreviousTimeStepSeeds();
 
 	/*
 		Takes the seeds and finds the jet core lines with help of a Predictor Corrector approach.
@@ -126,32 +121,32 @@ private:
 		This way, one avoids having to flip the gradient because the Sample function of the era field never flips the z axis. Only the resample function flips it.
 		Basically the flipping only happens at the very end after all computation is already finished.
 	*/
-	std::vector<Line3d> findJet(Line3d& seeds);
+	std::vector<Line3d> FindJet(Line3d& seeds);
 
 	/*
 		Traces a line with predictor corrector steps. Deactivates closeby seeds. If the inverse flag is set, the tracing goes in the inverse wind direction.
 	*/
-	void trace(Line3d& line, std::set<Vec3d, decltype(cmp)>& seeds_set, KdTree3d* seeds_kd_tree, PointCloud3d& seeds_point_cloud, bool inverse);
+	void Trace(Line3d& line, std::set<Vec3d, decltype(wind_magnitude_comparator_)>& seeds_set, KdTree3d* seeds_kd_tree, PointCloud3d& seeds_point_cloud, bool inverse);
 
 	/*
 		In case the seed point is not exactly on the core line, the beginning of the traced line is removed until it is alligned with the core line.
 	*/
-	void removeWrongStartUps(Line3d& jet_lines) const;
+	void RemoveWrongStartUps(Line3d& jet_lines) const;
 
 	/*
 		Removes the endings of the core line if they are below threshold.
 	*/
-	void cutWeakEndings(Line3d& jet);
+	void CutWeakEndings(Line3d& jet);
 
 	/*
 		Perfoms a Runke-Kutta 4 step in the wind direction.
 	*/
-	Vec3d predictorStepRK4(const Vec3d& pos, double dt) const;
+	Vec3d PredictorStepRK4(const Vec3d& pos, double dt) const;
 
 	/*
 	Performs a step in the opposite wind direction.
 	*/
-	Vec3d predictorStepRK4_inverse(const Vec3d& pos, double dt) const;
+	Vec3d PredictorStepRK4Inverse(const Vec3d& pos, double dt) const;
 	/*
 		Performs a Runge Kutta 4 Step in direction u.
 		u is needed for the case when the wind direction and the gradient point in oposite directions.
@@ -161,41 +156,40 @@ private:
 		pos = (long_idx, lat_idx, pressure(hPa))
 		dt = the integration stepsize.
 	*/
-	Vec3d correctorStepRK4(const Vec3d& pos, const double& dt) const;
+	Vec3d CorrectorStepRK4(const Vec3d& pos, const double& dt) const;
 
 	/*
 		Performs predictor corrector steps.
 	*/
-	Vec3d predictorCorrectorStep(const Vec3d& pos) const;
+	Vec3d PredictorCorrectorStep(const Vec3d& pos) const;
 
 	/*
 		Performs inverse predictor corrector steps.
 	*/
-	Vec3d inversePredictorCorrectorStep(const Vec3d& pos) const;
+	Vec3d InversePredictorCorrectorStep(const Vec3d& pos) const;
 
 	/*
 		Condition to make sure the line stays in the domain.
 	*/
-	bool condition_domain(const Vec3d& point) const;
+	bool ConditionDomain(const Vec3d& point) const;
 	/*
 		Condition that the Jet core is only allowed to stay for max_steps_below_speed_thresh steps below threshold.
 	*/
-	bool condition_wind_magnitude(const Vec3d& point, int& count) const;
+	bool ConditionWindMagnitude(const Vec3d& point, int& count) const;
 
 	/*
 		Filter to remove tropical storms which have wind magnitude over the threshold but evolve to the surface.
 	*/
-	LineCollection filterTropicalStorms(const LineCollection& jet) const;
+	LineCollection FilterFalsePositives(const LineCollection& jet) const;
 
 	/*
 		Helper functions.
 	*/
-	void updateKdTree(const Line3d& new_line);
-	Vec3d findClosestJetPoint(const double& radius, const Vec3d& point) const;
-	Vec3d findClosestJetPointExcludingLine(const double& radius, const Vec3d& point, const Line3d& line) const;
-	Line3d findPointsWithinRadius(const KdTree3d* kd_tree, const PointCloud3d& point_cloud, const double& radius, const Vec3d& point) const;
+	void UpdateKdTree(const Line3d& new_line);
+	Vec3d FindClosestJetPoint(const double& radius, const Vec3d& point) const;
+	Line3d FindPointsWithinRadius(const KdTree3d* kd_tree, const PointCloud3d& point_cloud, const double& radius, const Vec3d& point) const;
 
-	double getLineDistance(const Line3d& line) const {
+	double GetLineDistance(const Line3d& line) const {
 		double res = 0;
 		for (int i = 1; i < line.size(); i++) {
 			Vec3d v = (line[i] - line[i - 1]);
@@ -203,10 +197,10 @@ private:
 		}
 		return res;
 	}
-	Vec3d toIndexCoordinates(Vec3d& p) const {
-		return Vec3d({ p[0], p[1], CoordinateConverter::indexOfValueInArray(PSaxisValues, p[2], true) });
+	Vec3d ToIndexCoordinates(Vec3d& p) const {
+		return Vec3d({ p[0], p[1], CoordinateConverter::IndexOfValueInArray(ps_axis_values_, p[2], true) });
 	}
-	Vec3d toDomainCoordinates(Vec3d& p) const {
-		return Vec3d({ p[0], p[1], CoordinateConverter::valueOfIndexInArray(PSaxisValues, p[2], true) });
+	Vec3d ToDomainCoordinates(Vec3d& p) const {
+		return Vec3d({ p[0], p[1], CoordinateConverter::ValueOfIndexInArray(ps_axis_values_, p[2], true) });
 	}
 };

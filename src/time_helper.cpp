@@ -1,27 +1,27 @@
 ﻿#include <time.h>
 
-#include "DataHelper.hpp"
+#include "data_helper.hpp"
 
-#include "TimeHelper.hpp"
+#include "time_helper.hpp"
 
-time_t TimeHelper::toTimeT(std::string date) {
-	int startYear = std::stoi(date.substr(0, 4));
-	int startMonth = std::stoi(date.substr(4, 2));
-	int startDay = std::stoi(date.substr(6, 2));
-	int startHour = std::stoi(date.substr(9, 2));
-	//struct tm data_start_time2 = {.tm_hour=startHour, .tm_mday=startDay, .tm_mon=startMonth - 1,  .tm_year= startYear - 1900, .tm_isdst=-1};//-isdst = -1 lets mktime decide the summer or wintertime flag
-	struct tm data_tm = { 0, 0, startHour, startDay, startMonth - 1, startYear - 1900 };//-isdst = -1 lets mktime decide the summer or wintertime flag
+time_t TimeHelper::ToTimeT(std::string date) {
+	int start_year = std::stoi(date.substr(0, 4));
+	int start_month = std::stoi(date.substr(4, 2));
+	int start_day = std::stoi(date.substr(6, 2));
+	int start_hour = std::stoi(date.substr(9, 2));
+	//struct tm data_start_time2 = {.tm_hour=start_hour, .tm_mday=start_day, .tm_mon=start_month - 1,  .tm_year= start_year - 1900, .tm_isdst=-1};//-isdst = -1 lets mktime decide the summer or wintertime flag
+	struct tm data_tm = { 0, 0, start_hour, start_day, start_month - 1, start_year - 1900 };//-isdst = -1 lets mktime decide the summer or wintertime flag
 	data_tm.tm_isdst = -1;
 	return mktime(&data_tm);
 }
 /*
 	Time converter functions
 */
-std::string TimeHelper::convertHoursToDate(const size_t& hours, const std::string data_start_date) {
+std::string TimeHelper::ConvertHoursToDate(const size_t& hours, const std::string data_start_date) {
 	/*
 		Converts hours since the first time step to date. Need to take care of summer and winter time. Thats why we add one hour in the winter.
 	*/
-	time_t data_start_time_t = toTimeT(data_start_date);
+	time_t data_start_time_t = ToTimeT(data_start_date);
 	char out[30];
 	struct tm* stm = localtime(&data_start_time_t);
 	stm->tm_hour += (hours);
@@ -37,7 +37,7 @@ std::string TimeHelper::convertHoursToDate(const size_t& hours, const std::strin
 
 	return std::string(out);
 }
-size_t TimeHelper::convertDateToHours(const std::string& date, const std::string data_start_date) {
+size_t TimeHelper::ConvertDateToHours(const std::string& date, const std::string data_start_date) {
 	int year = std::stoi(date.substr(0, 4));
 	int month = std::stoi(date.substr(4, 2));
 	int day = std::stoi(date.substr(6, 2));
@@ -48,7 +48,7 @@ size_t TimeHelper::convertDateToHours(const std::string& date, const std::string
 
 	time_t new_time = mktime(&stm);
 	int test = stm.tm_isdst;
-	double diff = difftime(new_time, toTimeT(data_start_date));
+	double diff = difftime(new_time, ToTimeT(data_start_date));
 	diff = diff / 3600;
 	size_t hours;
 	if (stm.tm_isdst == 0) {
@@ -66,11 +66,11 @@ size_t TimeHelper::convertDateToHours(const std::string& date, const std::string
 	}
 	return hours;
 }
-size_t TimeHelper::getMonthFromHours(const size_t& time, const std::string data_start_date) {
-	std::string date = convertHoursToDate(time, data_start_date);
+size_t TimeHelper::GetMonthFromHours(const size_t& time, const std::string data_start_date) {
+	std::string date = ConvertHoursToDate(time, data_start_date);
 	return std::stoi(date.substr(4, 2));
 }
-size_t TimeHelper::getYearFromHours(const size_t& time, const std::string data_start_date) {
-	std::string date = convertHoursToDate(time, data_start_date);
+size_t TimeHelper::GetYearFromHours(const size_t& time, const std::string data_start_date) {
+	std::string date = ConvertHoursToDate(time, data_start_date);
 	return std::stoi(date.substr(0, 4));
 }

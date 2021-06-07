@@ -469,7 +469,7 @@ typedef BoundingBox<Vec3d> BoundingBox3d;
 class CoordinateConverter {
 
 public:
-	static float indexOfValueInArray(const std::vector<float>& arr, const float& val, const bool& flipped_axis) {
+	static float IndexOfValueInArray(const std::vector<float>& arr, const float& val, const bool& flipped_axis) {
 		float temp_res = 0;
 		for (int i = 0; i < arr.size(); i++) {
 			if (val < arr[i]) {
@@ -492,7 +492,7 @@ public:
 			return temp_res;
 		}
 	}
-	static float valueOfIndexInArray(const std::vector<float>& arr, const float& index, const bool& flipped_axis) {
+	static float ValueOfIndexInArray(const std::vector<float>& arr, const float& index, const bool& flipped_axis) {
 		float temp_res = 0;
 		int res_axis = arr.size();
 		int ind_down;

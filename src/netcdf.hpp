@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-#include "RegularGrid.hpp"
+#include "regular_grid.hpp"
 
 class NetCDF
 {

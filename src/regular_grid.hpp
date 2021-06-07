@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Math.hpp"
+#include "math.hpp"
 
 // Base class for a field on a regular grid
 template<typename TValueType, size_t TDimensions>
@@ -111,7 +111,7 @@ public:
 		return TDomainCoord::lerp(this->mDomain.GetMin(), this->mDomain.GetMax(), s);
 	}
   //Gets the spatial location of a grid vertex, if for the last domain coord value Max and Min are flipped.
-  TDomainCoord GetCoordAt_InvertedZDomain(const TGridCoord &gridCoord) const
+  TDomainCoord GetCoordAtWithInvertedZDomain(const TGridCoord &gridCoord) const
   {
     TDomainCoord s;
     for (int i = 0; i < TDomainCoord::Dimensions; ++i)
