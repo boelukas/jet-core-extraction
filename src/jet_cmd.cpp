@@ -150,7 +150,13 @@ int main(int argc, char* argv[])
 	src_path = ConvertPath(src_path);
 	dst_path = ConvertPath(dst_path);
 
-	if (!std::filesystem::exists(dst_path)) {
+  std::ofstream settingsFile;
+  settingsFile.open("settings.txt");
+  settingsFile << "SourceDirectory=" << src_path << "\n";
+  settingsFile << "DestDirectory=" << dst_path << "\n";
+  settingsFile.close();
+
+  if (!std::filesystem::exists(dst_path)) {
 		std::filesystem::create_directory(dst_path);
 	}
 
