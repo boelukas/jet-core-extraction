@@ -34,10 +34,8 @@ public:
   const std::vector<float> &GetAttributeByName(const std::string &attribute_name) const;
 
   //IO
-	void Export(const char* path);
 	void ExportTxtFile(const char* path, const std::vector<float>& ps_axis_values);
   void ExportVtp(const char *path, const std::vector<float> &ps_axis_values);
-  void Import(const char *path, const std::vector<std::string> &attribute_names = std::vector<std::string>(0));
 
   //Memory management
 	void Clear();

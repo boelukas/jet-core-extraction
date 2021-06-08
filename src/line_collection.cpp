@@ -91,43 +91,7 @@ const std::vector<float>& LineCollection::GetAttributeByName(const std::string& 
 	}
   return *(std::vector<float> *)nullptr;
 }
-/*
-	Exports the line collection to path. The memory layout is as described in the header.
-*/
-void LineCollection::Export(const char* path) {
-	size_t lines_size = lines_.size();
-	std::vector<size_t> attribute_sizes(attributes_.size());
-	std::vector<size_t> header(1 + 1 + attributes_.size()); //[length of Lines, #attributes, attribute0.length, attribute1.length...]
-	header[0] = lines_size;
-	header[1] = attributes_.size();
 
-	for (int i = 0; i < attributes_.size(); i++) {
-		attribute_sizes[i] = attributes_[i]->data.size();
-		header[(size_t)i + 2] = attributes_[i]->data.size();
-	}
-	{
-		//write header
-		size_t* header_data = (size_t*)(&header[0]);
-		std::ofstream out_stream(path, std::ios::out | std::ios::binary);
-		out_stream.write((char*)header_data, sizeof(size_t) * header.size());
-		out_stream.close();
-	}
-	{
-		float* float_data = (float*)(&lines_[0]);
-		std::ofstream out_stream(path, std::ios::out | std::ios::app | std::ios::binary);
-		out_stream.write((char*)float_data, sizeof(float) * lines_size);
-		out_stream.close();
-	}
-
-	for (int i = 0; i < attributes_.size(); i++) {
-		float* attribute_data = (float*)(&attributes_[i]->data[0]);
-		std::ofstream out_stream(path, std::ios::out | std::ios::app | std::ios::binary);
-		out_stream.write((char*)attribute_data, sizeof(float) * attribute_sizes[i]);
-		out_stream.close();
-	}
-
-
-}
 void LineCollection::ExportTxtFile(const char* path, const std::vector<float>& ps_axis_values) {
 	std::vector<std::vector<Vec3d>> vec_lines = GetLinesInVectorOfVector();
 	std::ofstream file;
@@ -141,9 +105,10 @@ void LineCollection::ExportTxtFile(const char* path, const std::vector<float>& p
 	file << "LINES (lon, lat, ps):\n";
 	for (size_t i = 0; i < vec_lines.size(); i++) {
 		for (size_t j = 0; j < vec_lines[i].size(); j++) {
-			file << (std::to_string(vec_lines[i][j][0]) + "," + std::to_string(vec_lines[i][j][1]) + "," +
-				std::to_string(CoordinateConverter::ValueOfIndexInArray(ps_axis_values, vec_lines[i][j][2], true))) + "\n";
-		}
+      file << (std::to_string(vec_lines[i][j][0]) + "," + std::to_string(vec_lines[i][j][1]) + "," +
+               std::to_string(CoordinateConverter::ValueOfIndexInArray(ps_axis_values, vec_lines[i][j][2], true) * 0.1)) +
+                  "\n";
+    }
 	}
 	file.close();
 }
@@ -210,45 +175,6 @@ void LineCollection::ExportVtp(const char *path, const std::vector<float> &ps_ax
   file << "</VTKFile>\n";
 
   file.close();
-}
-
-/*
-	Imports a line collection. Stays empty if the file at path does not exist.
-*/
-void LineCollection::Import(const char* path, const std::vector<std::string>& attribute_names) {
-	FILE* fp = fopen(path, "rb");
-	if (fp == nullptr) {
-		return;
-	}
-	size_t* head = new size_t[2];
-	fread(head, sizeof(size_t), 2, fp);
-	size_t length_lines = head[0];
-	size_t nr_attributes = head[1];
-	std::vector<size_t> attribute_sizes(nr_attributes);
-
-	if (nr_attributes != 0) {
-		size_t* attributes_size_p = (size_t*)(&attribute_sizes[0]);
-		fread(attributes_size_p, sizeof(size_t), nr_attributes, fp);
-	}
-
-	lines_ = std::vector<float>(length_lines);
-	float* lines_p = (float*)(&lines_[0]);
-	fread(lines_p, sizeof(float), length_lines, fp);
-	n_lines_ = lines_[0];
-
-	attributes_ = std::vector<Attribute*>(nr_attributes);
-	for (int i = 0; i < nr_attributes; i++) {
-		Attribute* attr = new Attribute;
-		attr->name = attribute_names[i];
-		attr->data = std::vector<float>(attribute_sizes[i]);
-
-		float* attr_p = (float*)(&attr->data[0]);
-		fread(attr_p, sizeof(float), attribute_sizes[i], fp);
-		if (attribute_names[i] != "") {
-			attributes_[i] = attr;
-		}
-	}
-	fclose(fp);
 }
 
 std::vector<std::vector<Vec3d>> LineCollection::GetLinesInVectorOfVector() const {

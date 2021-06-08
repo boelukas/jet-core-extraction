@@ -27,18 +27,13 @@ ERA5 data files are used as input with the following name structure: *P<date_tim
 
 **Output**
 
-The default output is a .vtp file containing the jet core lines. This file can be importet for visualization to Paraview. Alternatively the lines can be exportet as .txt file or as binary array. The point coordinates are in the following format: x: [0, 720] (0.5' lon), y: [0, 361] (0.5' lat), pressure: (hPa for .txt and binary, 10 hPa for .vtp)
-
-
+The default output is a .vtp file containing the jet core lines. This file can be importet for visualization to Paraview. Alternatively the lines can be exportet in ASCII format as .txt file. The point coordinates are in the following format: x: [0, 720] (0.5' lon), y: [0, 361] (0.5' lat), pressure: (10 hPa)
 
 
 **Optional Parameters:**
 
 `-exportTxt`
 Exports the jet core lines in ASCII format to a .txt file.
-
-`-exportBinary`
-Exports the jet core lines as binary array: [size_of_lines_array(size_t), 0(size_t), line_0_size(float), ... , line_n-1_size(float), line_0_0_x(float), line_0_0_y(float), line_0_0_z(float), ... ,line_n-1_k-1_x(float), line_n-1_k-1_y(float),line_n-1_k-1_z(float)]
 
 `-pMin`
 [10, 1040][hPa], Default: 190.0, smaller than pMax. Sets the lower pressure level boundary for the region of interest. Only seeds above pMin will be considered.

@@ -36,7 +36,6 @@ int main(int argc, char* argv[])
 	bool dst_found = false;
 	bool recompute = false;
 	bool export_txt = false;
-  bool export_binary = false;
 	JetStream::JetParameters jet_params;
 
   for (int i = 1; i < argc; i++) {
@@ -107,10 +106,6 @@ int main(int argc, char* argv[])
     else if (arg == "-exportTxt") {
       export_txt = true;
     }
-    else if (arg == "-exportBinary")
-    {
-      export_binary = true;
-    }
     else if (arg == "-recompute") {
       recompute = true;
     }
@@ -170,10 +165,7 @@ int main(int argc, char* argv[])
     {
       jet_name = dst_path + time_step + "_jet.txt";
     }
-    else if (export_binary)
-    {
-      jet_name = dst_path + time_step + "_jet";
-    }else{
+    else{
       jet_name = dst_path + time_step + "_jet.vtp";
     }
 
@@ -189,10 +181,6 @@ int main(int argc, char* argv[])
     if (export_txt)
     {
       jet.ExportTxtFile(jet_name.c_str(), jet_stream->GetPsAxis());
-    }
-    else if (export_binary)
-    {
-      jet.Export(jet_name.c_str());
     }
     else
     {
