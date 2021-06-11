@@ -37,8 +37,7 @@ public:
 			else std::cout << " ";
 		}
 		int pr = progress_ / size_ * 100.0;
-		//std::cout << "] " << pr << " %\r";
-		//std::cout.flush();
+
 		//End Progress Bar
 		std::chrono::time_point< std::chrono::high_resolution_clock > stop = std::chrono::high_resolution_clock::now();
 		long long duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start_).count();

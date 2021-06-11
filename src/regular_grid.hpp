@@ -35,14 +35,13 @@ public:
 
 	// Disable copy-constructor.
 	RegularGrid(const RegularGrid&) = delete;
-	// Destructor.
 	~RegularGrid() {}
 
-	// Samples the field.
-	/*
+  /*
+    Samples the field.
 		Call with domain coordinates: (-180:179.5, -90:90, 10:1040). Assumes all axes are ordered in ascending order.
 	*/
-	virtual TValue Sample(const TDomainCoord& coord) const
+  virtual TValue Sample(const TDomainCoord& coord) const
 	{
 		TDomainCoord position = this->mDomain.ClampToDomain(coord);
 
@@ -161,10 +160,9 @@ public:
 		mData[addr] = value;
 	}
 
-	// Gets the grid resolution.
 	const TGridCoord& GetResolution() const { return mResolution; }
-	// Gets the domain.
-	const TBoundingBox& GetDomain() const { return mDomain; }
+
+  const TBoundingBox& GetDomain() const { return mDomain; }
 
 	std::vector<TValue>& GetData() { return mData; }
 	const std::vector<TValue>& GetData() const { return mData; }

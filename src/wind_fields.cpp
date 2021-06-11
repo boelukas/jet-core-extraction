@@ -4,6 +4,9 @@
 
 WindFields::WindFields() {}
 
+/*
+		Computes the normalized wind direction.
+*/
 EraVectorField3f* WindFields::GetNormalizedWindDirectionEra(const size_t& time, RegScalarField3f* ps3d, RegScalarField3f* u, RegScalarField3f* v, RegScalarField3f* omega) {
 
 	RegVectorField3f* wind_direction = new RegVectorField3f(Vec3i({ u->GetResolution()[0], u->GetResolution()[1], u->GetResolution()[2] }), u->GetDomain());
@@ -98,6 +101,10 @@ EraVectorField3f* WindFields::GetWindMagnitudeGradientEra(const size_t& time, Re
 	return era;
 }
 
+/*
+		Returns the world length of a position in lon, lat coordinates.
+		lon_in meters can become negative due to rounding errors when lat is 90 or -90. Thats why the abs value is returned.
+*/
 Vec2d WindFields::GetWorldLengthOfDegreeInMeters(const double& lon, const double& lat)
 {
 	float pi = 3.1415926535897932384626433832795f;

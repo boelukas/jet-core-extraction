@@ -9,18 +9,15 @@ time_t TimeHelper::ToTimeT(std::string date) {
 	int start_month = std::stoi(date.substr(4, 2));
 	int start_day = std::stoi(date.substr(6, 2));
 	int start_hour = std::stoi(date.substr(9, 2));
-	//struct tm data_start_time2 = {.tm_hour=start_hour, .tm_mday=start_day, .tm_mon=start_month - 1,  .tm_year= start_year - 1900, .tm_isdst=-1};//-isdst = -1 lets mktime decide the summer or wintertime flag
 	struct tm data_tm = { 0, 0, start_hour, start_day, start_month - 1, start_year - 1900 };//-isdst = -1 lets mktime decide the summer or wintertime flag
 	data_tm.tm_isdst = -1;
 	return mktime(&data_tm);
 }
 /*
-	Time converter functions
+		Converts hours since the first time step to date. Need to take care of summer and winter time. Thats why we add one hour in the winter.
 */
 std::string TimeHelper::ConvertHoursToDate(const size_t& hours, const std::string data_start_date) {
-	/*
-		Converts hours since the first time step to date. Need to take care of summer and winter time. Thats why we add one hour in the winter.
-	*/
+
 	time_t data_start_time_t = ToTimeT(data_start_date);
 	char out[30];
 	struct tm* stm = localtime(&data_start_time_t);
@@ -42,7 +39,6 @@ size_t TimeHelper::ConvertDateToHours(const std::string& date, const std::string
 	int month = std::stoi(date.substr(4, 2));
 	int day = std::stoi(date.substr(6, 2));
 	int hour = std::stoi(date.substr(9, 2));
-	//struct tm stm = {.tm_hour=hour, .tm_mday=day, .tm_mon=month - 1,  .tm_year= year - 1900, .tm_isdst=-1};//isdst=-1 lets mktime decide the summer or wintertime flag
 	struct tm stm = { 0, 0, hour, day, month - 1, year - 1900 };//-isdst = -1 lets mktime decide the summer or wintertime flag
 	stm.tm_isdst = -1;
 
@@ -59,9 +55,6 @@ size_t TimeHelper::ConvertDateToHours(const std::string& date, const std::string
 		hours = (size_t)std::round(diff - 1);
 	}
 	else {
-		/*
-			What happens in the data
-		*/
 		hours = (size_t)std::round(diff);
 	}
 	return hours;

@@ -37,7 +37,7 @@ void LineCollection::SetData(const std::vector<std::vector<Vec3d>>& line_vector)
 	}
 }
 /*
-	Takes a float vector as input which is already in the correct format.
+	Takes a float vector as input which is already in the format described in the header.
 */
 void LineCollection::SetData(const std::vector<float>& lines) {
 	Clear();
@@ -90,6 +90,28 @@ const std::vector<float>& LineCollection::GetAttributeByName(const std::string& 
 		}
 	}
   return *(std::vector<float> *)nullptr;
+}
+
+std::vector<std::vector<Vec3d>> LineCollection::GetLinesInVectorOfVector() const
+{
+  std::vector<std::vector<Vec3d>> result;
+  int ptr = 1;
+  result.resize(n_lines_);
+  for (int i = 0; i < n_lines_; i++)
+  {
+    result[i].resize(lines_[ptr]);
+    ptr++;
+  }
+  for (int i = 0; i < n_lines_; i++)
+  {
+    for (int j = 0; j < result[i].size(); j++)
+    {
+      result[i][j] = Vec3d({lines_[ptr], lines_[ptr + 1], lines_[ptr + 2]});
+      ptr += 3;
+    }
+  }
+
+  return result;
 }
 
 void LineCollection::ExportTxtFile(const char* path, const std::vector<float>& ps_axis_values) {
@@ -177,20 +199,3 @@ void LineCollection::ExportVtp(const char *path, const std::vector<float> &ps_ax
   file.close();
 }
 
-std::vector<std::vector<Vec3d>> LineCollection::GetLinesInVectorOfVector() const {
-	std::vector<std::vector<Vec3d>> result;
-	int ptr = 1;
-	result.resize(n_lines_);
-	for (int i = 0; i < n_lines_; i++) {
-		result[i].resize(lines_[ptr]);
-		ptr++;
-	}
-	for (int i = 0; i < n_lines_; i++) {
-		for (int j = 0; j < result[i].size(); j++) {
-			result[i][j] = Vec3d({ lines_[ptr], lines_[ptr + 1], lines_[ptr + 2] });
-			ptr += 3;
-		}
-	}
-
-	return result;
-}

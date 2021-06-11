@@ -159,7 +159,9 @@ int main(int argc, char* argv[])
   std::string data_start_date = DataHelper::GetDataStartDate();
   ProgressBar pb(time_steps.size());
   JetStream* previous_jet = nullptr;
-  for (const auto& time_step : time_steps) {
+  std::vector<float> ps_axis = DataHelper::GetPsAxis();
+  for (const auto& time_step : time_steps)
+  {
     std::string jet_name;
     if (export_txt)
     {
@@ -180,11 +182,11 @@ int main(int argc, char* argv[])
     LineCollection jet = jet_stream->GetJetCoreLines();
     if (export_txt)
     {
-      jet.ExportTxtFile(jet_name.c_str(), jet_stream->GetPsAxis());
+      jet.ExportTxtFile(jet_name.c_str(), ps_axis);
     }
     else
     {
-      jet.ExportVtp(jet_name.c_str(), jet_stream->GetPsAxis());
+      jet.ExportVtp(jet_name.c_str(), ps_axis);
     }
     jet.Clear();
 

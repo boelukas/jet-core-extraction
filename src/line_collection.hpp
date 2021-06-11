@@ -3,10 +3,9 @@
 
 class LineCollection {
 	/*
-	This class handles lines of different lenght with attributes.
-	Layout in Memory:
-	[size_of_Lines_array|nr_of_attributes|attribute 0 size, ..., attribute n size| nr_of_lines | nr_of_vertexes_of_line_0, ... ,  nr_of_vertexes_of_line_n | vertexes_of_line_0, ..., vertexes_of_line_n|attribute_0,...,attribute_n]
-
+    Handles a collection of lines of different length with vertex attributes.
+    Format if lines_ array:
+    [size_of_Lines_array|nr_of_attributes|attribute 0 size, ..., attribute n size| nr_of_lines | nr_of_vertexes_of_line_0, ... ,  nr_of_vertexes_of_line_n | vertexes_of_line_0, ..., vertexes_of_line_n|attribute_0,...,attribute_n]
 	*/
 public:
 	struct Attribute {
@@ -19,25 +18,20 @@ public:
 	};
 	LineCollection();
 
-	//Setters
 	void SetData(const std::vector<std::vector<Vec3d>>& lines);
 	void SetData(const std::vector<float>& lines);
 
-	//Getters
 	const size_t& GetNumberOfLines()const;
 	size_t GetTotalNumberOfPoints() const;
 	size_t GetNumberOfPointsOfLine(const size_t& line_nr) const;
 	std::vector<std::vector<Vec3d>> GetLinesInVectorOfVector() const;
   std::vector<Vec3d> GetAllPointsInVector() const;
 
-  //Attribute functions
   const std::vector<float> &GetAttributeByName(const std::string &attribute_name) const;
 
-  //IO
 	void ExportTxtFile(const char* path, const std::vector<float>& ps_axis_values);
   void ExportVtp(const char *path, const std::vector<float> &ps_axis_values);
 
-  //Memory management
 	void Clear();
 
 

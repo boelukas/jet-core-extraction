@@ -49,7 +49,7 @@ private:
 	RegScalarField3f* ps_;
 
 	/*
-		Returns the value of field_ at level k^. Where k^ is the level where the 3D pressure is equal to searched_ps at the grid coordinates(i,j).
+		Returns the value of field_ at level k. Where k is the level where the 3D pressure is equal to searched_ps at the grid coordinates(i,j).
 	*/
 	TValueType BinarySearch(const int& i, const int& j, const double& searched_ps) const {
 		//search level for which at position (i,j) the 3d Pressure is searched_ps

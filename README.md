@@ -15,10 +15,10 @@ Under *demo_data* are ERA5 example data for one time step. If no arguments are g
 
 **Input**
 
-ERA5 data files are used as input with the following name structure: *P<date_time>*. e.g *P20160901_00*. The data need to be in the netcdf format and contain the following fields:
+ERA5 data files are used as input with the following name structure: *P<date_time>*. e.g *P20160901_00*. The data needs to be in netcdf format and contain the following fields:
 1. U - eastward wind
 2. V - northwards wind
-3. Omega - lagrangian tendency of air pressure (Vertical velocity)
+3. Omega - lagrangian tendency of air pressure
 4. T - air temperature
 5. lev - hybrid sigma pressure levels
 6. hyam - hybrid A coefficient at layer midpoints
@@ -27,7 +27,7 @@ ERA5 data files are used as input with the following name structure: *P<date_tim
 
 **Output**
 
-The default output is a .vtp file containing the jet core lines. This file can be importet for visualization to Paraview. Alternatively the lines can be exportet in ASCII format as .txt file. The point coordinates are in the following format: x: [0, 720] (0.5' lon), y: [0, 361] (0.5' lat), pressure: (10 hPa)
+The default output is a .vtp file containing the jet core lines. This file can be importet for visualization to Paraview. Alternatively the lines can be exportet in ASCII format as .txt file. The point coordinates are in the following format: x: [0, 720) (0.5' lon), y: [0, 361) (0.5' lat), pressure: (10 hPa).
 
 
 **Optional Parameters:**
@@ -36,10 +36,10 @@ The default output is a .vtp file containing the jet core lines. This file can b
 Exports the jet core lines in ASCII format to a .txt file.
 
 `-pMin`
-[10, 1040][hPa], Default: 190.0, smaller than pMax. Sets the lower pressure level boundary for the region of interest. Only seeds above pMin will be considered.
+[10, 1040][hPa], Default: 190.0, smaller than pMax. Sets the lower pressure level boundary for the region of interest.
 
 `-pMax`
-[10, 1040][hPa], Default: 350.0, larger than pMin. Sets the upper pressure level boundary for the region of interest. Only seeds below pMax will be considered.
+[10, 1040][hPa], Default: 350.0, larger than pMin. Sets the upper pressure level boundary for the region of interest.
 
 `-windspeedThreshold`
 [0, inf), Default: 40.0, the wind magnitude threshold criteria used to identify jet stream cores.

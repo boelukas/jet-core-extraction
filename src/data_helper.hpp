@@ -5,11 +5,6 @@
 
 class DataHelper
 {
-	/*
-		This class is responsible for loading data. To read data from disc, Amira is used.
-		The client is responsible for deleting RegScalarFields and EraScalarFields.
-		This class will clean up after imageData.
-	*/
 public:
 
 	//Data loading functions
@@ -22,4 +17,5 @@ public:
 	static std::string GetPreprocPath();
 	static std::string GetDataStartDate();
 	static std::vector<std::string> CollectTimes();
+  static std::vector<float> GetPsAxis();
 };

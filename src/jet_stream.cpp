@@ -11,7 +11,7 @@ JetStream::JetStream(const size_t& time, const JetParameters& jet_params, const 
 	:time_(time),
 	jet_params_(jet_params),
 	ps3d_preprocessed_(ps3d_preprocessed),
-	ps_axis_values_(GetPsAxis()),
+	ps_axis_values_(DataHelper::GetPsAxis()),
 	jet_core_lines_(LineCollection()),
 	fields_(std::vector<RegScalarField3f*>()),
 	wind_direction_normalized_(nullptr),
@@ -22,8 +22,8 @@ JetStream::JetStream(const size_t& time, const JetParameters& jet_params, const 
 	mtx_(std::mutex()),
 	previous_jet_(nullptr)
 {
-	WindFields wind_fields = WindFields();
-
+	WindFields wind_fields;
+  
   fields_ = DataHelper::LoadScalarFields(time_, std::vector<std::string>({ "U", "V", "OMEGA", "T" }));
   ps3d_ = DataHelper::ComputePS3D(TimeHelper::ConvertHoursToDate(time_, DataHelper::GetDataStartDate()), fields_[0]->GetResolution(), fields_[0]->GetDomain());
   wind_direction_normalized_ = wind_fields.GetNormalizedWindDirectionEra(time_, ps3d_, fields_[0], fields_[1], fields_[2]);
@@ -68,9 +68,7 @@ LineCollection JetStream::GetJetCoreLines() {
 	}
 	return jet_core_lines_;
 }
-/*
-	Interface for Preprocessor to compute the Jet Core Lines.
-*/
+
 void JetStream::ComputeJetCoreLines() {
 	GenerateJetSeeds();
 	std::vector<Line3d> jet = FindJet(_seeds);
@@ -80,7 +78,8 @@ void JetStream::ComputeJetCoreLines() {
 }
 
 /*
-	Iterates through the wind Magnitude scalar field to find points where the threshold is reached.
+		Iterates through the wind Magnitude scalar field to find local maximas.
+		If the previous time step exists, the maximas of the core lines from the last time step will be taken as additional seeds.
 */
 void JetStream::GenerateJetSeeds() {
 	PointCloud3d prev_jet_cloud{ Line3d() };
@@ -139,6 +138,7 @@ void JetStream::GenerateJetSeeds() {
 	}
 	delete prev_jet_tree;
 }
+
 Points3d JetStream::GetPreviousTimeStepSeeds()
 {
   if (time_ != 0) {
@@ -195,10 +195,11 @@ std::vector<Line3d> JetStream::FindJet(Line3d& seeds) {
 		Vec3d seed = *(seeds_set.begin());
 		seeds_set.erase(seeds_set.begin());
 		Line3d jet({ seed });
-
+    // Forward tracing
 		Trace(jet, seeds_set, seeds_kd_tree, seeds_point_cloud, false);
 		RemoveWrongStartUps(jet);
-		Trace(jet, seeds_set, seeds_kd_tree, seeds_point_cloud, true);
+    // Backward tracing
+    Trace(jet, seeds_set, seeds_kd_tree, seeds_point_cloud, true);
 		CutWeakEndings(jet);
 		if (GetLineDistance(jet) >= jet_params_.min_jet_distance) {
 			result.push_back(jet);
@@ -343,6 +344,7 @@ Vec3d JetStream::PredictorCorrectorStep(const Vec3d& pos) const {
 	}
 	return corr_pos;
 }
+
 Vec3d JetStream::InversePredictorCorrectorStep(const Vec3d& pos) const {
 	Vec3d pre_pos = pos;
 	for (int i = 0; i < jet_params_.n_predictor_steps; i++) {
@@ -357,7 +359,6 @@ Vec3d JetStream::InversePredictorCorrectorStep(const Vec3d& pos) const {
 
 /*
 	Perfoms a Runke-Kutta 4 step in the wind direction.
-	dt is overwritten for the final step. Otherwise the step would be too small.
 */
 Vec3d JetStream::PredictorStepRK4(const Vec3d& pos, double dt) const {
 
@@ -370,7 +371,7 @@ Vec3d JetStream::PredictorStepRK4(const Vec3d& pos, double dt) const {
 	return pos + v * dt;
 }
 /*
-Performs a step in the opposite wind direction at pos.
+  Performs a step in the opposite wind direction at pos.
 */
 Vec3d  JetStream::PredictorStepRK4Inverse(const Vec3d& pos, double dt) const {
 	Vec3d k1 = wind_direction_normalized_->Sample(pos);
@@ -383,12 +384,9 @@ Vec3d  JetStream::PredictorStepRK4Inverse(const Vec3d& pos, double dt) const {
 }
 /*
 	Performs a Runge Kutta 4 Step in direction u.
-	u is needed for the case when the wind direction and the gradient point in oposite directions.
+	u is needed for the case when the wind direction and the gradient point in opposite directions.
 	It could happen in this case, that the algorithm walks backwards to a strong local maximum.
 	u is the projection of the gradient on the plane perpendicular to v.
-
-	pos = (long_idx, lat_idx, pressure(hPa))
-	dt = the integration stepsize.
 */
 Vec3d JetStream::CorrectorStepRK4(const Vec3d& pos, const double& dt) const {
 
@@ -423,7 +421,7 @@ bool JetStream::ConditionDomain(const Vec3d& point) const {
 	return condition;
 }
 /*
-Condition that the Jet core is only allowed to stay for max_steps_below_speed_thresh steps below threshold.
+  Condition that the Jet core is only allowed to stay for max_steps_below_speed_thresh steps below threshold.
 */
 bool JetStream::ConditionWindMagnitude(const Vec3d& point, int& count) const {
 	float wind_mag = wind_magnitude_->Sample(point);
@@ -436,7 +434,11 @@ bool JetStream::ConditionWindMagnitude(const Vec3d& point, int& count) const {
 	}
 	return condition || (count <= jet_params_.max_steps_below_speed_thresh);
 }
-
+/*
+  Makes sure only horizontally evolving core lines are considered.
+  Lines which evolves more vertically than horizontally don't belong to the jet.
+  This could happen for example at tropical storms.
+*/
 LineCollection JetStream::FilterFalsePositives(const LineCollection& jet) const {
 	std::vector<Line3d> jet_vec = jet.GetLinesInVectorOfVector();
 	std::vector<Line3d> result;
@@ -472,6 +474,7 @@ void JetStream::UpdateKdTree(const Line3d& new_line) {
 	jet_point_cloud.pts.insert(jet_point_cloud.pts.end(), new_line.begin(), new_line.end());
 	jet_kd_tree->buildIndex();
 }
+
 Line3d JetStream::FindPointsWithinRadius(const KdTree3d* kd_tree, const PointCloud3d& point_cloud, const double& radius, const Vec3d& point) const {
 	std::vector<std::pair<size_t, double> >  ret_matches;
 	nanoflann::SearchParams params;
@@ -488,6 +491,7 @@ Line3d JetStream::FindPointsWithinRadius(const KdTree3d* kd_tree, const PointClo
 		return Line3d();
 	}
 }
+
 Vec3d JetStream::FindClosestJetPoint(const double& radius, const Vec3d& point) const {
 	std::vector<std::pair<size_t, double> >  ret_matches;
 	nanoflann::SearchParams params;

@@ -3,9 +3,6 @@
 
 class Gradient
 {
-	/*
-		Class for computing gradients of scalar fields. Also converts pa to m.
-	*/
 public:
 
 	Gradient() {}

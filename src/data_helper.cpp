@@ -6,18 +6,12 @@
 #include "netcdf.hpp"
 
 #include "data_helper.hpp"
-
-RegScalarField3f* DataHelper::LoadRegScalarField3f(const std::string& field_name, const size_t& time) {
-	/*
+/*
 		Loads data from the source directory.
-	*/
-	std::string path;
-	if (field_name == "THE" || field_name == "PV") {
-		path = GetSrcPath() + "S" + TimeHelper::ConvertHoursToDate(time, GetDataStartDate());
-	}
-	else {
-		path = GetSrcPath() + "P" + TimeHelper::ConvertHoursToDate(time, GetDataStartDate());
-	}
+*/
+RegScalarField3f* DataHelper::LoadRegScalarField3f(const std::string& field_name, const size_t& time) {
+
+	std::string path = GetSrcPath() + "P" + TimeHelper::ConvertHoursToDate(time, GetDataStartDate());
 	RegScalarField3f* field = NetCDF::ImportScalarField3f(path, field_name, "lon", "lat", "lev");
 	return field;
 }
@@ -114,3 +108,18 @@ std::string DataHelper::GetSrcPath() {
 	std::string srcPath = line.substr(16, line.size() - 16);
 	return srcPath;
 };
+
+std::vector<float> DataHelper::GetPsAxis()
+{
+  int stepSize = 10;
+  double PS_domain_min = 10.;
+  int pressureResolution = 104;
+
+  std::vector<float> pressure(pressureResolution);
+  pressure[0] = PS_domain_min;
+  for (size_t i = 1; i < pressureResolution; i++)
+  {
+    pressure[i] = PS_domain_min + i * stepSize;
+  }
+  return pressure;
+}
