@@ -27,7 +27,7 @@ ERA5 data files are used as input with the following name structure: *P<date_tim
 
 **Output**
 
-The default output is a .vtp file containing the jet core lines. This file can be importet for visualization to Paraview. Alternatively the lines can be exportet in ASCII format as .txt file. The point coordinates are in the following format: x: [0, 720) (0.5' lon), y: [0, 361) (0.5' lat), pressure: (10 hPa).
+The default output is a .vtp file containing the jet core lines. This file can be importet for visualization to Paraview. Alternatively the lines can be exportet in ASCII format as .txt file. The point coordinates are in the following format: lon: [0, 720) (0.5' longitude), lat: [0, 361) (0.5' latitude), pressure: (10 hPa).
 
 
 **Optional Parameters:**
