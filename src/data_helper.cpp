@@ -7,19 +7,24 @@
 
 #include "data_helper.hpp"
 /*
-		Loads data from the source directory.
+	Loads data from the source directory.
 */
 RegScalarField3f* DataHelper::LoadRegScalarField3f(const std::string& field_name, const size_t& time) {
-
-	std::string path = GetSrcPath() + "P" + TimeHelper::ConvertHoursToDate(time, GetDataStartDate());
+	std::string time_step = "P" + TimeHelper::ConvertHoursToDate(time, GetDataStartDate());
+	std::string path = GetSrcPath() + time_step;;
 	RegScalarField3f* field = NetCDF::ImportScalarField3f(path, field_name, "lon", "lat", "lev");
+	if (field == NULL){
+		std::cout << std::endl;
+		std::cout << "The following field was not found in the data "<< time_step<<": " << field_name << std::endl;
+		std::cout << "exiting" << std::endl;
+		std::exit(2);
+	}
 	return field;
 }
-
+/*
+	Loads a vector of scalar fields.
+*/
 std::vector<RegScalarField3f*> DataHelper::LoadScalarFields(const size_t& time, const std::vector<std::string>& field_names) {
-	/*
-		Loads a vector of scalar fields. In preprocessed it has to specified wether the field is in the folder preprocessed or not.
-	*/
 	int n_fields = field_names.size();
 	std::vector<RegScalarField3f*> fields(n_fields, NULL);
 
@@ -29,6 +34,7 @@ std::vector<RegScalarField3f*> DataHelper::LoadScalarFields(const size_t& time, 
 	}
 	return fields;
 }
+
 /*
 	Returns the 3D pressure in (lon, lat, level) coordinates.
 	Saves the max and min Pressure values in the mScalarRange fields of the Scalar field.

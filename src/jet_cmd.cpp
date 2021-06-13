@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
     }
   }
 	if (!(src_found && dst_found)) {
-		std::cout << "Source or destination directory not found. Using demo data." << std::endl;
+		std::cout << "Source or destination directory not set. Using demo data." << std::endl;
 #ifdef _WIN32
     src_path = "..\\demo_data\\";
     dst_path = "..\\demo_data\\";
