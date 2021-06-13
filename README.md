@@ -64,13 +64,17 @@ Recomputes the core lines and overrides existing ones.
 
     Ubuntu:
     ```
-    sudo apt install build-essential gdb cmake libnetcdf-dev g++-10 git
+    sudo apt install build-essential gdb cmake libnetcdf-dev g++-10 git git-lfs
     ```
     OpenSUSE Packages with YaST2:
     ```
-    cmake-full patterns-devel-C-C++-devel_C_C++ f netcdf-devel gcc10-c++ git
+    cmake-full patterns-devel-C-C++-devel_C_C++ f netcdf-devel gcc10-c++ git git-lfs
     ```
-2. Clone repository
+2. Install git-lfs
+    ```
+    git lfs install
+    ```
+4. Clone repository
 
 3. Build project:
     ```
