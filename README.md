@@ -70,7 +70,7 @@ Recomputes the core lines and overrides existing ones.
     ```
     cmake-full patterns-devel-C-C++-devel_C_C++ f netcdf-devel gcc10-c++ git git-lfs
     ```
-2. install git-lfs
+2. Install git-lfs
     ```
     git lfs install
     ```
