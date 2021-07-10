@@ -40,4 +40,7 @@ ELSE()
   MESSAGE(STATUS "Not using OpenMP parallelization")
 ENDIF()
 
+set(NETCDF_C "YES")
+FIND_PACKAGE(NetCDF REQUIRED)
+
 ADD_SUBDIRECTORY(src)

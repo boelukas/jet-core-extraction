@@ -29,13 +29,11 @@ public:
 			float data_minus = field->GetVertexDataAt(grid_coords_minus);
 			gradient[0] = (data_plus - data_minus) / (2.f * step_sizes[0]);
 
-
 			grid_coords_plus = ClampToPeriodicSphereGrid(clamped_grid_coords + Vec3i({ 0,1,0 }), field->GetResolution());
 			grid_coords_minus = ClampToPeriodicSphereGrid(clamped_grid_coords + Vec3i({ 0,-1,0 }), field->GetResolution());
 			data_plus = field->GetVertexDataAt(grid_coords_plus);
 			data_minus = field->GetVertexDataAt(grid_coords_minus);
 			gradient[1] = (data_plus - data_minus) / (2.f * step_sizes[1]);
-
 		}
 
 		//Compute pressure gradient component
@@ -45,7 +43,7 @@ public:
 			Vec3i grid_coord_lev_minus = clamped_grid_coords;
 			float vertex_data_lev_plus = field->GetVertexDataAt(grid_coord_lev_plus);
 			float vertex_data_lev_minus = field->GetVertexDataAt(grid_coord_lev_minus);
-			float size_of_1hpa_in_m = ConvertPaToM(100, temp->GetVertexDataAt(grid_coord_lev_minus), 1010 - grid_coord_lev_minus[2] * 10);
+			float size_of_1hpa_in_m = ConvertPaToM(100, temp->GetVertexDataAt(grid_coord_lev_minus), 1010.f - grid_coord_lev_minus[2] * 10.f);
 			gradient[2] = (vertex_data_lev_plus - vertex_data_lev_minus) / (step_sizes[2]);
 
 		}
@@ -55,7 +53,7 @@ public:
 			Vec3i grid_coord_lev_minus = ClampToPeriodicSphereGrid(clamped_grid_coords + Vec3i({ 0,0,-1 }), field->GetResolution());
 			float vertex_ata_lev_plus = field->GetVertexDataAt(grid_coord_lev_plus);
 			float vertex_data_lev_minus = field->GetVertexDataAt(grid_coord_lev_minus);
-			float size_of_1hpa_in_m = ConvertPaToM(100, temp->GetVertexDataAt(grid_coord_lev_minus), 1010 - grid_coord_lev_minus[2] * 10);
+			float size_of_1hpa_in_m = ConvertPaToM(100, temp->GetVertexDataAt(grid_coord_lev_minus), 1010.f - grid_coord_lev_minus[2] * 10.f);
 			gradient[2] = (vertex_ata_lev_plus - vertex_data_lev_minus) / (step_sizes[2]);
 
 		}
@@ -65,7 +63,7 @@ public:
 			Vec3i grid_coord_lev_minus = ClampToPeriodicSphereGrid(clamped_grid_coords + Vec3i({ 0,0,-1 }), field->GetResolution());
 			float vertex_ata_lev_plus = field->GetVertexDataAt(grid_coord_lev_plus);
 			float vertex_data_lev_minus = field->GetVertexDataAt(grid_coord_lev_minus);
-			float size_of_1hpa_in_m = ConvertPaToM(100, temp->GetVertexDataAt(grid_coord_lev_minus), 1010 - grid_coord_lev_minus[2] * 10);
+			float size_of_1hpa_in_m = ConvertPaToM(100, temp->GetVertexDataAt(grid_coord_lev_minus), 1010.f - grid_coord_lev_minus[2] * 10.f);
 			gradient[2] = (vertex_ata_lev_plus - vertex_data_lev_minus) / (2.f * step_sizes[2]);
 
 		}
@@ -79,7 +77,7 @@ public:
 		size_t num_entries = (size_t)gradient->GetResolution()[0] * (size_t)gradient->GetResolution()[1] * (size_t)gradient->GetResolution()[2];
 
 #pragma omp parallel for schedule(dynamic,16)
-		for (long long linear_index = 0; linear_index < num_entries; linear_index++) {
+		for (int64_t linear_index = 0; linear_index < (int64_t)num_entries; linear_index++) {
 			Vec3i coords = gradient->GetGridCoord(linear_index);
 			gradient->SetVertexDataAt(coords, GradientAtGridCoord(coords, source_field, temp));
 		}
@@ -92,7 +90,7 @@ public:
 		RegVectorField3f* gradient = new RegVectorField3f(Vec3i({ source_field->GetResolution()[0], source_field->GetResolution()[1], source_field->GetResolution()[2] }), source_field->GetDomain());
 		size_t num_entries = (size_t)gradient->GetResolution()[0] * (size_t)gradient->GetResolution()[1] * (size_t)gradient->GetResolution()[2];
 #pragma omp parallel for schedule(dynamic,16)
-		for (long long linear_index = 0; linear_index < num_entries; linear_index++) {
+		for (int64_t linear_index = 0; linear_index < (int64_t)num_entries; linear_index++) {
 			Vec3i coords = gradient->GetGridCoord(linear_index);
 			Vec3f local_grad = GradientAtGridCoord(coords, source_field, temp);
 			gradient->SetVertexDataAt(coords, local_grad / local_grad.length());
@@ -109,7 +107,7 @@ public:
 #ifdef NDEBUG
 #pragma omp parallel for schedule(dynamic,16)
 #endif
-		for (long long linear_index = 0; linear_index < num_entries; linear_index++) {
+		for (int64_t linear_index = 0; linear_index < (int64_t)num_entries; linear_index++) {
 			Vec3i coords = mag->GetGridCoord(linear_index);
 			Vec3f local_grad = GradientAtGridCoord(coords, source_field, temp);
 			mag->SetVertexDataAt(coords, local_grad.length());
@@ -124,9 +122,8 @@ public:
 		float omega_pa = pa_to_convert;
 		float t = temp;
 		float p = height_in_hPa * 100; // because the values are in hPa
-
-		float rgas = 287.058; //J / (kg - K) = > m2 / (s2 K)
-		float g = 9.80665;// m / s2
+		float rgas = 287.058f; //J / (kg - K) = > m2 / (s2 K)
+		float g = 9.80665f;// m / s2
 		float rho = p / (rgas * t); //density = > kg / m3
 		float w = omega_pa / (rho * g); //array operation
 		return w;
@@ -175,7 +172,6 @@ private:
 		grid_coord_clamped[0] = lon_lat_clamped[0];
 		grid_coord_clamped[1] = lon_lat_clamped[1];
 		grid_coord_clamped[2] = std::min(std::max(0, grid_coord[2]), n_lev - 1);
-
 		return grid_coord_clamped;
 	}
 };

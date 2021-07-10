@@ -1,7 +1,6 @@
 ﻿#include <netcdf.h>
 
 #include "regular_grid.hpp"
-
 #include "netcdf.hpp"
 
 const NetCDF::Info::Attribute& NetCDF::Info::Variable::GetAttributeByName(const std::string& name) const
@@ -287,19 +286,21 @@ bool NetCDF::ImportFloatArray(const std::string& path, const std::string& varnam
 	if (status != NC_NOERR) { return false; }
 
 	// allocate the scalar field
+	size_t varlength = variable.Dimensions[0].GetLength();
 	if (vartype == Info::EType::FLOAT) {
-		floatArray.resize(variable.Dimensions[0].GetLength());
+		floatArray.resize(varlength);
 		float* rawdata = floatArray.data();
 		status = nc_get_var_float(ncid, varid, rawdata);
 		if (status != NC_NOERR) { nc_close(ncid); return false; }
 	}
 	else if (vartype == Info::EType::DOUBLE) {
-		floatArray.resize(variable.Dimensions[0].GetLength());
+		floatArray.resize(varlength);
 		float* rawdata = floatArray.data();
-		double* rawdbl = new double[variable.Dimensions[0].GetLength()];
+		double* rawdbl = new double[varlength];
 		status = nc_get_var_double(ncid, varid, rawdbl);
-		for (size_t i = 0; i < variable.Dimensions[0].GetLength(); ++i)
-			rawdata[i] = static_cast<float>(rawdbl[i]);
+		for (size_t i = 0; i < varlength; ++i) {
+			rawdata[i] = (float)rawdbl[i];
+		}
 		if (status != NC_NOERR) { nc_close(ncid); return false; }
 	}
 	nc_close(ncid);

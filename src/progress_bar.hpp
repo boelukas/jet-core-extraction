@@ -31,12 +31,12 @@ public:
 		progress_++;
 		//Progress Bar
 		std::cout << "[";
-		int pos = 50 * progress_ / size_;
+		int pos = (int)(50 * progress_ / size_);
 		for (int i = 0; i < 50; ++i) {
 			if (i <= pos) std::cout << "#";
 			else std::cout << " ";
 		}
-		int pr = progress_ / size_ * 100.0;
+		int pr = (int)(progress_ / size_ * 100.0);
 
 		//End Progress Bar
 		std::chrono::time_point< std::chrono::high_resolution_clock > stop = std::chrono::high_resolution_clock::now();

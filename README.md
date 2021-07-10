@@ -11,7 +11,7 @@ e.g
 ./jet_cmd /home/usr/Desktop/Data /home/usr/Desktop/JetDir -nCorrectorSteps 10 -nPredictorSteps 2 -pMax 1000
 ```
 
-Under *demo_data* are ERA5 example data for one time step. If no arguments are given, the demo data will be used.
+Under *demo_data* are ERA5 example data for one time step. If no arguments are given, the demo data will be used. Adjust jet_cmd.cpp lines 128-135 if the demo data is not found on your system.
 
 **Input**
 
@@ -27,7 +27,7 @@ ERA5 data files are used as input with the following name structure: *P<date_tim
 
 **Output**
 
-The default output is a .vtp file containing the jet core lines. This file can be importet for visualization to Paraview. Alternatively the lines can be exportet in ASCII format as .txt file. The point coordinates are in the following format: lon: [0, 720) (0.5' longitude), lat: [0, 361) (0.5' latitude), pressure: (10 hPa).
+The default output is a .vtp file containing the jet core lines. This file can be imported for visualization to Paraview. Alternatively the lines can be exported in ASCII format as .txt file. The point coordinates are in the following format: lon: [0, 720) (0.5' longitude), lat: [0, 361) (0.5' latitude), pressure: (10 hPa).
 
 
 **Optional Parameters:**
@@ -74,7 +74,25 @@ Recomputes the core lines and overrides existing ones.
     ```
     git lfs install
     ```
-4. Clone repository
+3. Clone repository
+
+4. Build project:
+    ```
+    cd jet-core-extraction
+    mkdir build
+    cd build
+    cmake ..
+    make
+    ```
+## Installation Windows
+
+Tested for Visual Studio 2019.
+
+1. Install dependencies
+
+    Install pre-computed binaries for NetCDF-4 64bit from https://www.unidata.ucar.edu/downloads/netcdf/
+
+2. Clone repository
 
 3. Build project:
     ```

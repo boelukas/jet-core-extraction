@@ -25,7 +25,7 @@ public:
 	Vec(const TOther& other) { for (size_t i = 0; i < TDimensions; ++i) mData[i] = static_cast<TScalarType>(other[i]); }
 
 	// Initializes a vector with initializer list.
-	explicit Vec(std::initializer_list<TScalarType> list) {
+	explicit Vec(std::initializer_list<TScalarType> list) : mData() {
 		int i = 0;
 		for (auto elem : list) {
 			if (i >= TDimensions) return;
@@ -481,7 +481,7 @@ public:
 				break;
 			}
 			else if (val == arr[i]) {
-				temp_res = i;
+				temp_res = (float)i;
 				break;
 			}
 		}
@@ -494,7 +494,7 @@ public:
 	}
 	static float ValueOfIndexInArray(const std::vector<float>& arr, const float& index, const bool& flipped_axis) {
 		float temp_res = 0;
-		int res_axis = arr.size();
+		int res_axis = (int)arr.size();
 		int ind_down;
 		int ind_up;
 		if (flipped_axis) {

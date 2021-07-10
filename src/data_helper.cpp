@@ -25,7 +25,7 @@ RegScalarField3f* DataHelper::LoadRegScalarField3f(const std::string& field_name
 	Loads a vector of scalar fields.
 */
 std::vector<RegScalarField3f*> DataHelper::LoadScalarFields(const size_t& time, const std::vector<std::string>& field_names) {
-	int n_fields = field_names.size();
+	int n_fields = (int)field_names.size();
 	std::vector<RegScalarField3f*> fields(n_fields, NULL);
 
 #pragma omp parallel for schedule(dynamic,16)
@@ -57,13 +57,13 @@ RegScalarField3f* DataHelper::ComputePS3D(const std::string& time, const Vec3i& 
 
 	size_t num_entries = (size_t)pressure_3d->GetResolution()[0] * (size_t)pressure_3d->GetResolution()[1] * (size_t)pressure_3d->GetResolution()[2];
 #pragma omp parallel for schedule(dynamic,16)
-	for (long long linear_index = 0; linear_index < num_entries; linear_index++) {
+	for (int64_t linear_index = 0; linear_index < (int64_t)num_entries; linear_index++) {
 		Vec3i coords = pressure_3d->GetGridCoord(linear_index);
 		int i = coords[0];
 		int j = coords[1];
 		int k = coords[2];
 
-		float pressure = hyam[(size_t)std::round(lev[k]) - 1] * 0.01 + (double)hybm[(size_t)std::round(lev[k]) - 1] * (double)pressure_2d->GetVertexDataAt(Vec2i({ i, j }));
+		float pressure = hyam[(size_t)std::round(lev[k]) - 1] * 0.01f + hybm[(size_t)std::round(lev[k]) - 1] * pressure_2d->GetVertexDataAt(Vec2i({ i, j }));
 		if (pressure < min_pressure) { min_pressure = pressure; }
 		if (pressure > max_pressure) { max_pressure = pressure; }
 		pressure_3d->SetVertexDataAt(coords, pressure);
@@ -117,15 +117,15 @@ std::string DataHelper::GetSrcPath() {
 
 std::vector<float> DataHelper::GetPsAxis()
 {
-  int stepSize = 10;
-  double PS_domain_min = 10.;
-  int pressureResolution = 104;
-
-  std::vector<float> pressure(pressureResolution);
-  pressure[0] = PS_domain_min;
-  for (size_t i = 1; i < pressureResolution; i++)
-  {
-    pressure[i] = PS_domain_min + i * stepSize;
-  }
-  return pressure;
+  	int stepSize = 10;
+  	float PS_domain_min = 10.f;
+  	int pressureResolution = 104;
+  	
+  	std::vector<float> pressure(pressureResolution);
+  	pressure[0] = PS_domain_min;
+  	for (size_t i = 1; i < pressureResolution; i++)
+  	{
+  	  pressure[i] = PS_domain_min + i * stepSize;
+  	}
+  	return pressure;
 }

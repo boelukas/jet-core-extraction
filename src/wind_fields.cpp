@@ -13,12 +13,12 @@ EraVectorField3f* WindFields::GetNormalizedWindDirectionEra(const size_t& time, 
 
 	size_t num_entries = (size_t)wind_direction->GetResolution()[0] * (size_t)wind_direction->GetResolution()[1] * (size_t)wind_direction->GetResolution()[2];
 #pragma omp parallel for schedule(dynamic,16)
-	for (long long linear_index = 0; linear_index < num_entries; linear_index++) {
+	for (int64_t linear_index = 0; linear_index < (int64_t)num_entries; linear_index++) {
 		Vec3i coords = wind_direction->GetGridCoord(linear_index);
 		Vec3f wind_dir = Vec3f({ u->GetVertexDataAt(coords),v->GetVertexDataAt(coords), omega->GetVertexDataAt(coords) / 100 });
-    Vec3f wind_dir_norm = wind_dir / wind_dir.length();
-    wind_direction->SetVertexDataAt(coords, wind_dir_norm);
-  }
+		Vec3f wind_dir_norm = wind_dir / wind_dir.length();
+		wind_direction->SetVertexDataAt(coords, wind_dir_norm);
+	}
 
 	EraVectorField3f* era = new EraVectorField3f(wind_direction, ps3d);
 	return era;
@@ -38,10 +38,10 @@ EraScalarField3f* WindFields::GetWindMagnitudeEra(const size_t& time, const std:
 	{
 		Vec3i grid_coord = norm_wind_vector->GetGridCoord(linear_index);
 		float u_at_grid_coord = u->GetVertexDataAt(grid_coord);
-    float v_at_grid_coord = v->GetVertexDataAt(grid_coord);
-    float om_at_grid_coord = w->GetVertexDataAt(grid_coord);
-    norm_wind_vector->SetVertexDataAt(grid_coord, std::sqrt(u_at_grid_coord * u_at_grid_coord + v_at_grid_coord * v_at_grid_coord + om_at_grid_coord * om_at_grid_coord));
-  }
+		float v_at_grid_coord = v->GetVertexDataAt(grid_coord);
+		float om_at_grid_coord = w->GetVertexDataAt(grid_coord);
+		norm_wind_vector->SetVertexDataAt(grid_coord, std::sqrt(u_at_grid_coord * u_at_grid_coord + v_at_grid_coord * v_at_grid_coord + om_at_grid_coord * om_at_grid_coord));
+	}
 	EraScalarField3f* era = new EraScalarField3f(norm_wind_vector, ps3d);
 
 	delete w;
@@ -85,7 +85,7 @@ EraScalarField3f* WindFields::GetSmoothWindMagnitude(const size_t& time, const s
 			}
 		}
 
-		smooth->SetVertexDataAt(grid_coord, avg / ((2 * x_filter + 1) * (2 * y_filter + 1) * (2 * z_filter + 1)));
+		smooth->SetVertexDataAt(grid_coord, (float)(avg / ((2.0 * x_filter + 1) * (2.0 * y_filter + 1) * (2.0 * z_filter + 1))));
 
 	}
 	delete field;
@@ -120,18 +120,18 @@ RegScalarField3f* WindFields::Convert_pa_to_m(RegScalarField3f* data, RegScalarF
 	size_t num_entries = (size_t)data->GetResolution()[0] * (size_t)data->GetResolution()[1] * (size_t)data->GetResolution()[2];
 	float max = 0;
 #pragma omp parallel for schedule(dynamic,16)
-	for (long long linear_index = 0; linear_index < num_entries; linear_index++) {
+	for (int64_t linear_index = 0; linear_index < (int64_t)num_entries; linear_index++) {
 		Vec3i coords = data->GetGridCoord(linear_index);
 
 		float omega_pa = data->GetVertexDataAt(coords);
 		float t = temp->GetVertexDataAt(coords);
 		float p = ps3d->GetVertexDataAt(coords) * 100;
-		float rgas = 287.058; //J / (kg - K) = > m2 / (s2 K)
-		float g = 9.80665;// m / s2
+		float rgas = 287.058f; //J / (kg - K) = > m2 / (s2 K)
+		float g = 9.80665f;// m / s2
 		float rho = p / (rgas * t); //density = > kg / m3
 		float w = -omega_pa / (rho * g); //array operation
-    w_field->SetVertexDataAt(coords, w);
-    if (std::abs(w) > max) { max = std::abs(w); }
+		w_field->SetVertexDataAt(coords, w);
+		if (std::abs(w) > max) { max = std::abs(w); }
 	}
-  return w_field;
+	return w_field;
 }

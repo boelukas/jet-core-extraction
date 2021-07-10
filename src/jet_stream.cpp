@@ -23,13 +23,13 @@ JetStream::JetStream(const size_t& time, const JetParameters& jet_params, const 
 	previous_jet_(nullptr)
 {
 	WindFields wind_fields;
-  
-  fields_ = DataHelper::LoadScalarFields(time_, std::vector<std::string>({ "U", "V", "OMEGA", "T" }));
-  ps3d_ = DataHelper::ComputePS3D(TimeHelper::ConvertHoursToDate(time_, DataHelper::GetDataStartDate()), fields_[0]->GetResolution(), fields_[0]->GetDomain());
-  wind_direction_normalized_ = wind_fields.GetNormalizedWindDirectionEra(time_, ps3d_, fields_[0], fields_[1], fields_[2]);
-  wind_magnitude_ = wind_fields.GetWindMagnitudeEra(time_, ps_axis_values_, ps3d_, fields_[0], fields_[1], fields_[2], fields_[3]);
-  wind_magnitude_smooth_ = wind_fields.GetSmoothWindMagnitude(time_, ps_axis_values_, ps3d_, fields_[0], fields_[1], fields_[2], fields_[3]);
-  grad_wind_magnitude_ = wind_fields.GetWindMagnitudeGradientEra(time_, ps3d_, fields_[3], wind_magnitude_smooth_->GetField());
+
+	fields_ = DataHelper::LoadScalarFields(time_, std::vector<std::string>({ "U", "V", "OMEGA", "T" }));
+	ps3d_ = DataHelper::ComputePS3D(TimeHelper::ConvertHoursToDate(time_, DataHelper::GetDataStartDate()), fields_[0]->GetResolution(), fields_[0]->GetDomain());
+	wind_direction_normalized_ = wind_fields.GetNormalizedWindDirectionEra(time_, ps3d_, fields_[0], fields_[1], fields_[2]);
+	wind_magnitude_ = wind_fields.GetWindMagnitudeEra(time_, ps_axis_values_, ps3d_, fields_[0], fields_[1], fields_[2], fields_[3]);
+	wind_magnitude_smooth_ = wind_fields.GetSmoothWindMagnitude(time_, ps_axis_values_, ps3d_, fields_[0], fields_[1], fields_[2], fields_[3]);
+	grad_wind_magnitude_ = wind_fields.GetWindMagnitudeGradientEra(time_, ps3d_, fields_[3], wind_magnitude_smooth_->GetField());
 
 	wind_magnitude_comparator_.ps_axis_values = ps_axis_values_;
 	wind_magnitude_comparator_.wind_magnitude = wind_magnitude_;
@@ -55,14 +55,14 @@ JetStream::~JetStream() {
 }
 void JetStream::DeletePreviousJet()
 {
-  if (previous_jet_ != nullptr)
-  {
-    delete previous_jet_;
-    previous_jet_ = nullptr;
-  }
+	if (previous_jet_ != nullptr)
+	{
+		delete previous_jet_;
+		previous_jet_ = nullptr;
+	}
 }
 
-LineCollection JetStream::GetJetCoreLines() {
+const LineCollection& JetStream::GetJetCoreLines() {
 	if (jet_core_lines_.GetNumberOfLines() == 0) {
 		ComputeJetCoreLines();
 	}
@@ -89,25 +89,24 @@ void JetStream::GenerateJetSeeds() {
 		Line3d prev_jet = GetPreviousTimeStepSeeds();
 		prev_jet_cloud.pts = prev_jet;
 		prev_jet_tree->buildIndex();
-    _seeds.insert(_seeds.end(), prev_jet.begin(), prev_jet.end());
-  }
-	double ps_min_idx = CoordinateConverter::IndexOfValueInArray(ps_axis_values_, jet_params_.ps_min_val, true);
-	double ps_max_idx = CoordinateConverter::IndexOfValueInArray(ps_axis_values_, jet_params_.ps_max_val, true);
+		_seeds.insert(_seeds.end(), prev_jet.begin(), prev_jet.end());
+	}
+	double ps_min_idx = CoordinateConverter::IndexOfValueInArray(ps_axis_values_, (float)jet_params_.ps_min_val, true);
+	double ps_max_idx = CoordinateConverter::IndexOfValueInArray(ps_axis_values_, (float)jet_params_.ps_max_val, true);
 	size_t num_entries = (size_t)wind_magnitude_smooth_->GetField()->GetResolution()[0] * (size_t)wind_magnitude_smooth_->GetField()->GetResolution()[1] * (size_t)wind_magnitude_smooth_->GetField()->GetResolution()[2];
 
 
 #pragma omp parallel for schedule(dynamic,24)
-	for (long long linear_index = 0; linear_index < num_entries; linear_index++) {
+	for (int64_t linear_index = 0; linear_index < (int64_t)num_entries; linear_index++) {
 		Vec3i coords = wind_magnitude_smooth_->GetField()->GetGridCoord(linear_index);
 		if (coords[2] <= ps_min_idx && coords[2] >= ps_max_idx) {
-			Vec3d seed_candidate = Vec3d({ (double)coords[0], (double)coords[1], CoordinateConverter::ValueOfIndexInArray(ps_axis_values_, coords[2], true) });
-			Vec3d up = Vec3d({ (double)coords[0], (double)coords[1], CoordinateConverter::ValueOfIndexInArray(ps_axis_values_, coords[2], true) + 10 });
-			Vec3d down = Vec3d({ (double)coords[0], (double)coords[1], CoordinateConverter::ValueOfIndexInArray(ps_axis_values_, coords[2], true) - 10 });
-			Vec3d left = Vec3d({ (double)coords[0] - 1, (double)coords[1], CoordinateConverter::ValueOfIndexInArray(ps_axis_values_, coords[2], true) });
-			Vec3d right = Vec3d({ (double)coords[0] + 1, (double)coords[1], CoordinateConverter::ValueOfIndexInArray(ps_axis_values_, coords[2], true) });
-			Vec3d front = Vec3d({ (double)coords[0], (double)coords[1] + 1, CoordinateConverter::ValueOfIndexInArray(ps_axis_values_, coords[2], true) });
-			Vec3d back = Vec3d({ (double)coords[0], (double)coords[1] - 1, CoordinateConverter::ValueOfIndexInArray(ps_axis_values_, coords[2], true) });
-
+			Vec3d seed_candidate = Vec3d({ (double)coords[0], (double)coords[1], CoordinateConverter::ValueOfIndexInArray(ps_axis_values_, (float)coords[2], true) });
+			Vec3d up = Vec3d({ (double)coords[0], (double)coords[1], CoordinateConverter::ValueOfIndexInArray(ps_axis_values_, (float)coords[2], true) + 10.0 });
+			Vec3d down = Vec3d({ (double)coords[0], (double)coords[1], CoordinateConverter::ValueOfIndexInArray(ps_axis_values_, (float)coords[2], true) - 10.0 });
+			Vec3d left = Vec3d({ (double)coords[0] - 1, (double)coords[1], CoordinateConverter::ValueOfIndexInArray(ps_axis_values_, (float)coords[2], true) });
+			Vec3d right = Vec3d({ (double)coords[0] + 1, (double)coords[1], CoordinateConverter::ValueOfIndexInArray(ps_axis_values_, (float)coords[2], true) });
+			Vec3d front = Vec3d({ (double)coords[0], (double)coords[1] + 1, CoordinateConverter::ValueOfIndexInArray(ps_axis_values_, (float)coords[2], true) });
+			Vec3d back = Vec3d({ (double)coords[0], (double)coords[1] - 1, CoordinateConverter::ValueOfIndexInArray(ps_axis_values_, (float)coords[2], true) });
 
 			float wind_mag = wind_magnitude_smooth_->Sample(seed_candidate);
 
@@ -141,18 +140,18 @@ void JetStream::GenerateJetSeeds() {
 
 Points3d JetStream::GetPreviousTimeStepSeeds()
 {
-  if (time_ != 0) {
-    LineCollection jet = previous_jet_->GetJetCoreLines();
+	if (time_ != 0) {
+		const LineCollection& jet = previous_jet_->GetJetCoreLines();
 
 		std::vector<Line3d> prev_jet = jet.GetLinesInVectorOfVector();
 
-    Points3d res = Points3d();
-    for (auto line : prev_jet) {
+		Points3d res = Points3d();
+		for (auto line : prev_jet) {
 			if (line.size() < 3) { continue; }
 			for (int i = 1; i < line.size() - 1; i++) {
-				double left = wind_magnitude_->Sample(ToDomainCoordinates(line[i - 1]));
+				double left = wind_magnitude_->Sample(ToDomainCoordinates(line[i - 1ll]));
 				double centre = wind_magnitude_->Sample(ToDomainCoordinates(line[i]));
-				double right = wind_magnitude_->Sample(ToDomainCoordinates(line[i + 1]));
+				double right = wind_magnitude_->Sample(ToDomainCoordinates(line[i + 1ll]));
 				if (centre > left && centre > right) {
 					res.push_back(line[i]);
 				}
@@ -161,8 +160,8 @@ Points3d JetStream::GetPreviousTimeStepSeeds()
 		return res;
 	}
 	else {
-    return Points3d();
-  }
+		return Points3d();
+	}
 }
 
 /*
@@ -195,11 +194,11 @@ std::vector<Line3d> JetStream::FindJet(Line3d& seeds) {
 		Vec3d seed = *(seeds_set.begin());
 		seeds_set.erase(seeds_set.begin());
 		Line3d jet({ seed });
-    // Forward tracing
+		// Forward tracing
 		Trace(jet, seeds_set, seeds_kd_tree, seeds_point_cloud, false);
 		RemoveWrongStartUps(jet);
-    // Backward tracing
-    Trace(jet, seeds_set, seeds_kd_tree, seeds_point_cloud, true);
+		// Backward tracing
+		Trace(jet, seeds_set, seeds_kd_tree, seeds_point_cloud, true);
 		CutWeakEndings(jet);
 		if (GetLineDistance(jet) >= jet_params_.min_jet_distance) {
 			result.push_back(jet);
@@ -263,8 +262,8 @@ void JetStream::Trace(Line3d& line, std::set<Vec3d, decltype(wind_magnitude_comp
 void JetStream::RemoveWrongStartUps(Line3d& jet_line) const {
 	double threshold = 0.5;
 	while (jet_line.size() >= 2) {
-		Vec3d start_point = Vec3d({ jet_line[0][0], jet_line[0][1], CoordinateConverter::ValueOfIndexInArray(ps_axis_values_, jet_line[0][2], true) });
-		Vec3d next_point = Vec3d({ jet_line[1][0], jet_line[1][1], CoordinateConverter::ValueOfIndexInArray(ps_axis_values_, jet_line[1][2], true) });
+		Vec3d start_point = Vec3d({ jet_line[0][0], jet_line[0][1], CoordinateConverter::ValueOfIndexInArray(ps_axis_values_, (float)jet_line[0][2], true) });
+		Vec3d next_point = Vec3d({ jet_line[1][0], jet_line[1][1], CoordinateConverter::ValueOfIndexInArray(ps_axis_values_, (float)jet_line[1][2], true) });
 		Vec3d jet_direction = next_point - start_point;
 		jet_direction.normalize();
 
@@ -287,7 +286,7 @@ void JetStream::RemoveWrongStartUps(Line3d& jet_line) const {
 void JetStream::CutWeakEndings(Line3d& jet) {
 	if (jet.size() >= 2) {
 		int left = 0;
-		int right = jet.size() - 1;
+		int right = (int)jet.size() - 1;
 		float wm_l = wind_magnitude_->Sample(ToDomainCoordinates(jet[left]));
 		float wm_r = wind_magnitude_->Sample(ToDomainCoordinates(jet[right]));
 		while (wm_l < jet_params_.wind_speed_threshold || wm_r < jet_params_.wind_speed_threshold) {
@@ -330,8 +329,6 @@ void JetStream::CutWeakEndings(Line3d& jet) {
 		}
 	}
 }
-
-
 
 Vec3d JetStream::PredictorCorrectorStep(const Vec3d& pos) const {
 	Vec3d pred_pos = pos;
@@ -445,12 +442,12 @@ LineCollection JetStream::FilterFalsePositives(const LineCollection& jet) const 
 	for (int i = 0; i < jet_vec.size(); i++) {
 		if (jet_vec[i].size() == 0) { continue; }
 		Vec3d start_point_3d = jet_vec[i][0];
-		double start_ps = CoordinateConverter::ValueOfIndexInArray(ps_axis_values_, start_point_3d[2], true);
+		double start_ps = CoordinateConverter::ValueOfIndexInArray(ps_axis_values_, (float)start_point_3d[2], true);
 		Vec2d start_point_2d = Vec2d{ (jet_vec[i][0][0] * 0.5, jet_vec[i][0][1] * 0.5) };
 		double largest_ver_dist = 0;
 		double largest_horiz_dist = 0;
 		for (int j = 0; j < jet_vec[i].size(); j++) {
-			double p = CoordinateConverter::ValueOfIndexInArray(ps_axis_values_, jet_vec[i][j][2], true);
+			double p = CoordinateConverter::ValueOfIndexInArray(ps_axis_values_, (float)jet_vec[i][j][2], true);
 			Vec2d p_v = Vec2d{ (jet_vec[i][j][0] * 0.5, jet_vec[i][j][1] * 0.5) };
 			double d_tmp = (start_point_2d - p_v).length();
 			if (d_tmp > largest_horiz_dist) {

@@ -17,5 +17,5 @@ public:
 	static std::string GetPreprocPath();
 	static std::string GetDataStartDate();
 	static std::vector<std::string> CollectTimes();
-  static std::vector<float> GetPsAxis();
+	static std::vector<float> GetPsAxis();
 };

@@ -62,7 +62,7 @@ private:
 			level = 0.0;
 		}
 		else if (searched_ps >= ps_->GetVertexDataAt(Vec3i({ i, j, ps_->GetResolution()[2] - 1 }))) {
-			level = ps_->GetResolution()[2] - 1;
+			level = ps_->GetResolution()[2] - 1.0;
 		}
 		else {
 			//Binary search with integrated linear interpolation
@@ -74,8 +74,8 @@ private:
 					break;
 				}
 				if (l + 1 == r) {
-					float psl = ps_->GetVertexDataAt(Vec3i({ i, j, l }));
-					float psr = ps_->GetVertexDataAt(Vec3i({ i, j, r }));
+					double psl = (double)ps_->GetVertexDataAt(Vec3i({ i, j, l }));
+					double psr = (double)ps_->GetVertexDataAt(Vec3i({ i, j, r }));
 
 					level = l + ((searched_ps - psl) / (psr - psl));
 					break;
@@ -89,8 +89,8 @@ private:
 			}
 		}
 
-		int lev_down = std::floor(level);
-		int lev_up = std::ceil(level);
+		int lev_down = (int)std::floor(level);
+		int lev_up = (int)std::ceil(level);
 
 		TValueType val_down = field_->GetVertexDataAt(Vec3i({ i, j, lev_down }));
 		TValueType val_up = field_->GetVertexDataAt(Vec3i({ i, j, lev_up }));
@@ -103,7 +103,7 @@ private:
 		Performs linear interpolation with the assumption that x2-x1 = 1.
 	*/
 	TValueType LinearInterpolate(const double& x1, const double& x2, const TValueType& y1, const TValueType& y2, double x) const {
-		return (y1 + (y2 - y1) * (x - x1));
+		return TValueType(y1 + (y2 - y1) * (float)(x - x1));
 	}
 };
 
