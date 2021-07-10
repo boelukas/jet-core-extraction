@@ -13,6 +13,11 @@ e.g
 
 Under *demo_data* are ERA5 example data for one time step. If no arguments are given, the demo data will be used. Adjust jet_cmd.cpp lines 128-135 if the demo data is not found on your system.
 
+The ERA5 data is courtesy of the European Centre for Medium-Range Weather Forecasts (ECMWF) and is documented here:
+  https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation
+The data is available under the Copernicus License Agreement:
+  https://cds.climate.copernicus.eu/api/v2/terms/static/licence-to-use-copernicus-products.pdf
+
 **Input**
 
 ERA5 data files are used as input with the following name structure: *P<date_time>*. e.g *P20160901_00*. The data needs to be in netcdf format and contain the following fields:
