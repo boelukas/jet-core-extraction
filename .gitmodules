@@ -1,3 +1,7 @@
 [submodule "extern/nanoflann"]
 	path = extern/nanoflann
 	url = https://github.com/jlblancoc/nanoflann.git
+
+[submodule "extern/netcdf-c"]
+	path = extern/netcdf-c
+	url = https://github.com/Unidata/netcdf-c.git
